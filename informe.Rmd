@@ -1,0 +1,36 @@
+---
+title: "titulo"
+author: "nombres"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Cargar los paquetes necesarios acá
+```
+
+
+## Introducción
+
+
+
+## Exploración de los datos
+
+
+```{r}
+# Código para cargar o leer los datos
+```
+
+
+
+```{r}
+# Cödigo de R acá 
+# Agregá más bloques según sea necesario
+```
+
+
+
+## Hipótesis
+
+
