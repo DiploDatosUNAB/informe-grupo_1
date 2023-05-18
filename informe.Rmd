@@ -29,20 +29,58 @@ if (IP == "10.2.29.7") {
 
 ## Introducción
 
+# ¿Qué?
 
+La base posee datos sobre diferentes vinos y sus reseñas. El detalle de los datos lo transcribo del diccionario:
+
+#### `vinos`
+
+|Variable       |Clase               |Descripción |
+|:--------------|:-------------------|:-----------|
+| pais | caracter | País de origen |
+| nombre | caracter | Nombre del vino |
+| puntos | entero | Puntos con que fue calificado (escala de 1 a 100) |
+| precio | entero | Precio de la botella (en dólares estadounidenses) |
+| provincia | caracter | Lugar de origen. En la mayoría de los casos, la provincia, la región o el nombre del valle. Traducida al español cuando se trata de países hispanoparlantes. |
+| zona_1 | caracter | En algunos casos, información adicional sobre la zona de origen. Traducida al español cuando se trata de países hispanoparlantes. |
+| zona_2 | caracter | En algunos pocos casos, más información adicional sobre el lugar de origen. Traducida al español cuando se trata de países hispanoparlantes. |
+| variedad | caracter | Variedad (por ejemplo, Pinot Noir, Cabernet Sauvignon, etc.) |
+| vina | caracter | Nombre de la viña que produce el vino |
+| titulo_resena| caracter | Título de la reseña. No están traducidos al español. En la mayoría de los casos solo indica el año de cosecha y el nombre del vino |
+
+# ¿De dónde?
+
+La fuente de los datos es la revista Wine Enthusiast, extraidos por y de Kaggle, y luego traducidos.
+
+# ¿Quién los tomó?
+![](https://iili.io/HgxBOjn.jpg)
+
+# ¿Cuando?
+
+El dataset en español es de 2019-06-12 (obtenido de la url), el original en inglés de Keggle fue actualizado hace 5 años (2018), pero no indica la fecha exacta de procedencia de los datos
 
 ## Exploración de los datos
 
 
+
 ```{r}
 # Código para cargar o leer los datos
+vinos  <-  read_csv('datos/vinos.csv')
+# head(vinos)
+```
+```{r}
+filas <- nrow(vinos)
+columnas <- ncol(vinos)
+
 ```
 
 
+El dataset tiene ``r filas`` observaciones y ``r columnas`` variables.
 
 ```{r}
 # Cödigo de R acá 
 # Agregá más bloques según sea necesario
+
 ```
 
 
