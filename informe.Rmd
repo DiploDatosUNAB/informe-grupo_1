@@ -24,13 +24,13 @@ library(tidyr)
 library(datos) # por si las dudas
 
 
-#Esto lo necesito para poder acceder desde el laburo
-# IP  <-  gsub(".*? ([[:digit:]])", "\\1", system("ipconfig", intern=T)[grep("IPv4", system("ipconfig", intern = T))])
-# if (IP == "10.2.29.7") {
-#   Sys.setenv("https_proxy"="proxy.jus.gov.ar:8080/")
-#   Sys.setenv("http_proxy"="proxy.jus.gov.ar:8080/")
-#   options(internet.info = 0) #valor 0 o 1 para ver la comunicación con internet
-#   }
+# Esto lo necesito para poder acceder desde el laburo
+IP  <-  gsub(".*? ([[:digit:]])", "\\1", system("ipconfig", intern=T)[grep("IPv4", system("ipconfig", intern = T))])
+if (IP == "10.2.29.7") {
+  Sys.setenv("https_proxy"="proxy.jus.gov.ar:8080/")
+  Sys.setenv("http_proxy"="proxy.jus.gov.ar:8080/")
+  options(internet.info = 0) #valor 0 o 1 para ver la comunicación con internet
+  }
 ```
 
 
