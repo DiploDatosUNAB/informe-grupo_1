@@ -1,7 +1,15 @@
 ---
 title: "Informe para alcoholistas"
 author: "Alejandro Blasco"
-output: html_document
+# output:
+#   html_document:
+#     theme: darkly
+#     highlight: tango
+output:
+ revealjs::revealjs_presentation:
+   theme: moon
+   highlight: pygments
+   
 ---
 
 
@@ -17,74 +25,158 @@ library(datos) # por si las dudas
 
 
 #Esto lo necesito para poder acceder desde el laburo
-IP  <-  gsub(".*? ([[:digit:]])", "\\1", system("ipconfig", intern=T)[grep("IPv4", system("ipconfig", intern = T))])
-if (IP == "10.2.29.7") {
-  Sys.setenv("https_proxy"="proxy.jus.gov.ar:8080/")
-  Sys.setenv("http_proxy"="proxy.jus.gov.ar:8080/")
-  options(internet.info = 0) #valor 0 o 1 para ver la comunicación con internet
-  }
-
+# IP  <-  gsub(".*? ([[:digit:]])", "\\1", system("ipconfig", intern=T)[grep("IPv4", system("ipconfig", intern = T))])
+# if (IP == "10.2.29.7") {
+#   Sys.setenv("https_proxy"="proxy.jus.gov.ar:8080/")
+#   Sys.setenv("http_proxy"="proxy.jus.gov.ar:8080/")
+#   options(internet.info = 0) #valor 0 o 1 para ver la comunicación con internet
+#   }
 ```
 
 
 ## Introducción
 
-# ¿Qué?
+# ¿Qué datos son?
 
 La base posee datos sobre diferentes vinos y sus reseñas. El detalle de los datos lo transcribo del diccionario:
 
-#### `vinos`
+# `vinos`
 
 |Variable       |Clase               |Descripción |
 |:--------------|:-------------------|:-----------|
 | pais | caracter | País de origen |
 | nombre | caracter | Nombre del vino |
-| puntos | entero | Puntos con que fue calificado (escala de 1 a 100) |
-| precio | entero | Precio de la botella (en dólares estadounidenses) |
-| provincia | caracter | Lugar de origen. En la mayoría de los casos, la provincia, la región o el nombre del valle. Traducida al español cuando se trata de países hispanoparlantes. |
-| zona_1 | caracter | En algunos casos, información adicional sobre la zona de origen. Traducida al español cuando se trata de países hispanoparlantes. |
-| zona_2 | caracter | En algunos pocos casos, más información adicional sobre el lugar de origen. Traducida al español cuando se trata de países hispanoparlantes. |
-| variedad | caracter | Variedad (por ejemplo, Pinot Noir, Cabernet Sauvignon, etc.) |
-| vina | caracter | Nombre de la viña que produce el vino |
-| titulo_resena| caracter | Título de la reseña. No están traducidos al español. En la mayoría de los casos solo indica el año de cosecha y el nombre del vino |
+| puntos | entero | Puntos con que fue calificado (1 a 100) |
+| precio | entero | Precio de la botella (en dólares) |
+| provincia | caracter | Lugar de origen. |
+| zona_1 | caracter | Información adicional sobre zona de origen. |
+| zona_2 | caracter | Más información adicional |
+| variedad | caracter | Variedad (ie, Pinot Noir) |
+| vina | caracter | Nombre de la viña |
+| titulo_resena| caracter | Título de la reseña. |
 
-# ¿De dónde?
+# ¿De dónde provienen?
 
-La fuente de los datos es la revista Wine Enthusiast, extraidos por y de Kaggle, y luego traducidos.
+La fuente de los datos es la revista *Wine Enthusiast*, extraidos por *zackthoutt* y alojados en *Kaggle*, de donde fueron tomados y luego traducidos.
 
 # ¿Quién los tomó?
 ![](https://iili.io/HgxBOjn.jpg)
 
-# ¿Cuando?
+# ¿En qué período se tomaron?
 
-El dataset en español es de 2019-06-12 (obtenido de la url), el original en inglés de Keggle fue actualizado hace 5 años (2018), pero no indica la fecha exacta de procedencia de los datos
+El dataset en español es de 2019-06-12 (dato obtenido de la url), el original en inglés de Keggle fue actualizado por última vez hace 5 años (2018), pero no se indica la fecha exacta de procedencia de los datos.
 
 ## Exploración de los datos
 
+# Muestreo
 
-
+Primero cargo los datos:
 ```{r}
 # Código para cargar o leer los datos
-vinos  <-  read_csv('datos/vinos.csv')
-# head(vinos)
-```
-```{r}
-filas <- nrow(vinos)
-columnas <- ncol(vinos)
-
+vinos  <-  read_csv('datos/vinos.csv', show_col_types = FALSE)
 ```
 
+Luego presento una muestra:
+```{r echo=FALSE}
+head(vinos)
+```
 
-El dataset tiene ``r filas`` observaciones y ``r columnas`` variables.
+# Conteo
 
 ```{r}
-# Cödigo de R acá 
-# Agregá más bloques según sea necesario
+observaciones <- nrow(vinos)
+variables <- ncol(vinos)
 
 ```
 
+El dataset tiene ``r observaciones`` observaciones y ``r variables`` variables.
+
+# Variables a analizar
+
+Se consideran las variables ***puntos*** y ***precio*** para el análisis, ya que son las únicas numéricas.
+
+# ¿Cuál es su valor medio y desvío estándar?
+
+*Puntos*
+```{r echo=FALSE}
+summarise(vinos, puntos_media = mean(puntos, na.rm = TRUE), puntos_ds = sd(puntos, na.rm = TRUE))
+```
+Por la media y el desvío, se puede suponer que si las calificaciones tienen distribución normal, en su mayoría se encuentran entre *85* y *92*.
+
+*Precio*
+```{r echo=FALSE}
+summarise(vinos, precio_media = mean(precio, na.rm = TRUE), precio_ds = sd(precio, na.rm = TRUE))
+```
+Por la media y el desvío, se puede suponer que la distribución no es normal.
+
+
+# ¿Cuál es su rango (valor máximo y valor mínimo)?
+
+*Puntos*
+```{r echo=FALSE}
+summarise(vinos, puntos_min = min(puntos, na.rm = TRUE), puntos_max = max(puntos, na.rm = TRUE))
+```
+
+*Precio*
+```{r echo=FALSE}
+summarise(vinos, precio_min = min(precio, na.rm = TRUE), precio_max = max(precio, na.rm = TRUE))
+```
+
+# ¿Hay alguna anomalía que sugiera que hay datos incorrectos?
+
+No hay evidencias de que existan anomalías, solo algunos datos llamativos, como la diferencia entre la media de precios y los precios máximos
+```{r}
+vinos_caros <- nrow(filter(vinos, precio > 250))
+precio_max <- summarise(vinos, max(precio, na.rm = TRUE))
+```
+ya que, aunque el máximo es ``r precio_max``, solo existen ``r vinos_caros`` que superen los ``$250``.
+
+# 
+Esto se observa mejor con un gráfico:
+
+```{r echo=FALSE}
+# precios <- select(vinos, precio)
+p <- vinos |>
+  filter(precio < 250) |>
+  ggplot( aes(x=precio, fill=precio)) + 
+  geom_histogram(binwidth=3, show.legend = FALSE, fill=rainbow(83))
+show(p)
+```
+
+# 
+
+```{r}
+paises <- length(unique(na.omit(vinos$pais)))
+variedades <- length(unique(na.omit(vinos$variedad)))
+```
+También llamó la atención la cantidad de variedades de vinos, ``r variedades``.
+
+# ¿Cuántas observaciones hay por cada grupo? ¿Cuántos valores faltantes? ¿Hay diferencias?
+
+```{r}
+prop_no_encontrados <- round(colSums(is.na(vinos))/nrow(vinos),4)*100
+show(prop_no_encontrados)
+```
+Podemos encontrar bastantes valores faltantes, pero únicamente en las columnas de nombre (``r prop_no_encontrados[2]``%), region_1 (``r prop_no_encontrados[6]``%) y region_2 (``r prop_no_encontrados[6]``%).
 
 
 ## Hipótesis
 
+# Se presentan 3 hipótesis:
+
+* Podría existir una diferencia importante entre el promedio de precios de los vinos según el país.
+* Habría una incremento en el precio promedio del vino conforme su puntaje.
+* Existirían variedades que podrían tener un precio promedio significativamente mayor, pero no así su puntaje.
+
+# 
+
+Un gráfico de dispersión de la relación puntaje y precio:
+```{r echo=FALSE}
+
+p <- vinos |> 
+  filter(precio < 1500) |>
+  ggplot(aes(x=puntos, y=precio)) + 
+    geom_point()
+show(p)
+```
 
