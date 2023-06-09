@@ -1,14 +1,14 @@
 ---
 title: "Informe para alcoholistas"
 author: "Alejandro Blasco"
-# output:
-#   html_document:
-#     theme: darkly
-#     highlight: tango
 output:
- revealjs::revealjs_presentation:
-   theme: moon
-   highlight: pygments
+  html_document:
+    theme: darkly
+    highlight: tango
+# output:
+#  revealjs::revealjs_presentation:
+#    theme: moon
+#    highlight: pygments
    
 ---
 
@@ -19,12 +19,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(readr)
 library(dplyr)
 library(ggplot2)
-library(DescTools)
 library(tidyr)
-library(datos) # por si las dudas
 
 
-# Esto lo necesito para poder acceder desde el laburo
+# Esto lo necesito para poder acceder desde el laburo, tiene un condicional por lo cual solo se ejecuta en ese contexto
 IP  <-  gsub(".*? ([[:digit:]])", "\\1", system("ipconfig", intern=T)[grep("IPv4", system("ipconfig", intern = T))])
 if (IP == "10.2.29.7") {
   Sys.setenv("https_proxy"="proxy.jus.gov.ar:8080/")
@@ -122,6 +120,8 @@ summarise(vinos, puntos_min = min(puntos, na.rm = TRUE), puntos_max = max(puntos
 summarise(vinos, precio_min = min(precio, na.rm = TRUE), precio_max = max(precio, na.rm = TRUE))
 ```
 
+Se ve que los puntos no bajan de 80, y en base al máximo, mínimo y promedio de precios, que los precios altos tienen mucha dispersión, porque se alejan mucho de la media, con lo que existiría una asimetría hacia la derec
+
 # ¿Hay alguna anomalía que sugiera que hay datos incorrectos?
 
 No hay evidencias de que existan anomalías, solo algunos datos llamativos, como la diferencia entre la media de precios y los precios máximos
@@ -132,6 +132,7 @@ precio_max <- summarise(vinos, max(precio, na.rm = TRUE))
 ya que, aunque el máximo es ``r precio_max``, solo existen ``r vinos_caros`` que superen los ``$250``.
 
 # 
+
 Esto se observa mejor con un gráfico:
 
 ```{r echo=FALSE}
@@ -139,7 +140,7 @@ Esto se observa mejor con un gráfico:
 p <- vinos |>
   filter(precio < 250) |>
   ggplot( aes(x=precio, fill=precio)) + 
-  geom_histogram(binwidth=3, show.legend = FALSE, fill=rainbow(83))
+  geom_histogram(binwidth=3, show.legend = FALSE, fill=rainbow(1))
 show(p)
 ```
 
@@ -148,6 +149,7 @@ show(p)
 ```{r}
 paises <- length(unique(na.omit(vinos$pais)))
 variedades <- length(unique(na.omit(vinos$variedad)))
+cepas[sort.list(unique(na.omit(vinos$variedad)))]
 ```
 También llamó la atención la cantidad de variedades de vinos, ``r variedades``.
 
@@ -164,11 +166,26 @@ Podemos encontrar bastantes valores faltantes, pero únicamente en las columnas 
 
 # Se presentan 3 hipótesis:
 
-* Podría existir una diferencia importante entre el promedio de precios de los vinos según el país.
-* Habría una incremento en el precio promedio del vino conforme su puntaje.
+* 1) Podría existir una diferencia importante entre el promedio de precios de los vinos según el país.
+* 2) Habría una incremento en el precio promedio del vino conforme su puntaje.
 * Existirían variedades que podrían tener un precio promedio significativamente mayor, pero no así su puntaje.
 
 # 
+```{r}
+# TP 2
+# 
+# 1. Escribir la pregunta. 
+# 2. Mostrar uno o varios gráficos o tablas relevantes
+# 3. Escribir un texto interpretando esos resultados y llegar a una conclusión. 
+# 
+# Y repetir para cada pregunta. 
+# 
+# Si durante el análisis le surgen otras preguntas, son bienvenides de responderlas también. Muchas veces aparecen cosas que nos sorprenden y es necesario indagar más.
+
+
+
+```
+
 
 Un gráfico de dispersión de la relación puntaje y precio:
 ```{r echo=FALSE}
