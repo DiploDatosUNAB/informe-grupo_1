@@ -6,10 +6,12 @@ output:
   html_document:
     theme: darkly
     highlight: tango
+    toc: true
 # output:
 #  revealjs::revealjs_presentation:
 #    theme: moon
 #    highlight: pygments
+#    toc: true
    
 ---
 
@@ -31,7 +33,7 @@ library(tidyr)
 
 La base posee datos sobre diferentes vinos y sus reseñas. El detalle de los datos lo transcribo del diccionario:
 
-## `vinos`
+## `df vinos`
 
 |Variable       |Clase               |Descripción |
 |:--------------|:-------------------|:-----------|
@@ -128,7 +130,7 @@ precio_max <- summarise(vinos, max(precio, na.rm = TRUE))
 ```
 ya que, aunque el máximo es ``r precio_max``, solo existen US\$``r vinos_caros`` que superen los US\$``r precio_caro``.
 
-## 
+
 
 Esto se observa mejor con un gráfico:
 
@@ -141,7 +143,6 @@ p <- vinos |>
 show(p)
 ```
 
-## 
 
 ```{r}
 paises_len <- length(unique(na.omit(vinos$pais)))
@@ -152,7 +153,7 @@ También llamó la atención la cantidad de variedades de vinos, ``r variedades_
 
 ## ¿Cuántas observaciones hay por cada grupo? ¿Cuántos valores faltantes? ¿Hay diferencias?
 
-```{r}
+```{r echo=FALSE}
 prop_no_encontrados <- round(colSums(is.na(vinos))/nrow(vinos),4)*100
 show(prop_no_encontrados)
 ```
@@ -161,7 +162,7 @@ Podemos encontrar bastantes valores faltantes, pero únicamente en las columnas 
 
 # Hipótesis
 
-## Se presentan 3 hipótesis:
+Se presentan 3 hipótesis:
 
 1. Podría existir una diferencia importante entre el promedio de precios de los vinos según el país.
 2. Habría una incremento en el precio promedio del vino conforme su puntaje.
@@ -195,9 +196,10 @@ vinos |>
   labs(x = "Precio", y = "Pais")
   
 ```
+
 Vemos una gran dispersión, con precios que van desde menos de US\$10 (Ucrania), hasta más de US\$85 (Suiza)
 Para verificar que estos promedios sean estadísticamente significativos, veamos cuantas reseñas hay de cada pais:
-```{r}
+```{r echo=FALSE}
 vinos |> 
   filter(!is.na(pais)) |> 
   group_by(pais) |> 
@@ -214,7 +216,8 @@ vinos |>
   labs(x = "Reseñas", y = "Pais")
   
 ```
-Se ve que existen paises con muy pocas reseñas, por lo que vamos a filtrar aquellos paises cuyas cantidad de reseñas no sean representativas (0,1% del tamaño de la muestra, ``r round(tamanio_muestra/1000)``: 
+
+Se ve que existen paises con muy pocas reseñas, por lo que vamos a filtrar aquellos paises cuyas cantidad de reseñas no sean representativas (0,1% del tamaño de la muestra, ``r round(tamanio_muestra/1000)``): 
 
 ```{r echo=FALSE}
 vinos |> 
@@ -227,7 +230,8 @@ vinos |>
   geom_col(width = 0.5, color='yellowgreen',fill='yellowgreen', alpha = 0.6) +
   labs(x = "Precio", y = "Pais")
 ```
-Ahora vemos que la diferencia persiste, pero matizada, y que oscilan entre US\$15 y US\$42.
+
+Ahora vemos que la diferencia persiste, pero matizada, y que los precios oscilan entre US\$15 y US\$42.
 
 *Conclusiones:* Se constata que existe una diferencia significativa entre los precios promedio y el pais de origen del vino, ya sea que se contabilicen todos los países o se excluyan aquellos que poseen pocas reseñas. 
 
@@ -249,6 +253,7 @@ p <- vinos |>
     labs(x = "Puntos", y = "Precio (US$)", colour = "Precio")
 show(p)
 ```
+
 Este gráfico parecería mostrar que, si bien los vinos de puntaje bajo no suelen tener precio alto, existe vinos de precio bajo en casi todos los puntajes, aunque parecería ir en aumento el precio promedio conforme sube el puntaje. Para comprobarlo: 
 
 ```{r echo=FALSE}
@@ -262,10 +267,11 @@ p <- vinos |>
     labs(x = "Puntos", y = "Precio (US$)", fill = "Precio")
 show(p)
 ```
+
 Con esto se ve más claramente que el precio promedio de los vino se incrementa significativamente conforme el puntaje.
 También podemos observar como se distribuyen los puntajes:
 
-```{r}
+```{r echo=FALSE}
 vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |>
@@ -282,31 +288,36 @@ vinos |>
   ggplot(aes(x = puntos, y = resenias)) +
   geom_col()
 ```
-Se ve que los puntajes parecerían tene una distribución semejante a la normal.
+
+Se observa que los puntajes parecerían tene una distribución semejante a la normal.
 
 Vamos a ver si existe algun otro rasgo relevante de la relación puntaje y precio. Primeramente creamos una nueva variable que las relacione:
 ```{r}
 vinos_ratio <- vinos |> 
-  mutate(ratio = precio/puntos)
+  mutate(ratio = precio*puntos*0.01)
+show(max(vinos_ratio$ratio, na.rm = TRUE))
+show(min(vinos_ratio$ratio, na.rm = TRUE))
 ```
+
 Y luego veamos si existe una relacíon entre la cantidad de reseñas y este ratio puntaje/precio:
-
-
-```{r}
+```{r echo=FALSE}
 vinos_ratio |> 
   filter(!is.na(ratio)) |>
-  group_by(ratio) |>
-  arrange(desc(ratio)) |> 
+  group_by(cut(ratio, 15)) |>
   summarise(n = n())
 ```
            
 
 ```{r}
+# vinos_ratio |> 
+#   filter(!is.na(ratio)) |>
+#   group_by(cut(ratio, 100)) |>
+#   summarise(n = n())
+
 vinos_ratio |> 
   filter(!is.na(ratio)) |>
-  # filter(ratio < 10) |>
+  filter(ratio < 500) |>
   group_by(ratio) |>
-  summarise(n = n()) |> 
   ggplot(aes(ratio)) +
   geom_histogram()
            
