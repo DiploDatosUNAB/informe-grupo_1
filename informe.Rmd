@@ -79,7 +79,6 @@ sample(vinos)
 ```{r}
 observaciones <- nrow(vinos)
 variables <- ncol(vinos)
-
 ```
 
 El dataset tiene ``r observaciones`` observaciones y ``r variables`` variables.
@@ -92,13 +91,17 @@ Se consideran las variables ***puntos*** y ***precio*** para el análisis, ya qu
 
 *Puntos*
 ```{r echo=FALSE}
-summarise(vinos, puntos_media = mean(puntos, na.rm = TRUE), puntos_ds = sd(puntos, na.rm = TRUE))
+summarise(vinos, 
+          puntos_media = mean(puntos, na.rm = TRUE),
+          puntos_ds = sd(puntos, na.rm = TRUE))
 ```
 Por la media y el desvío, se puede suponer que si las calificaciones tienen distribución normal, en su mayoría se encuentran entre *85* y *92*.
 
 *Precio*
 ```{r echo=FALSE}
-summarise(vinos, precio_media = mean(precio, na.rm = TRUE), precio_ds = sd(precio, na.rm = TRUE))
+summarise(vinos, 
+          precio_media = mean(precio, na.rm = TRUE),
+          precio_ds = sd(precio, na.rm = TRUE))
 ```
 Por la media y el desvío, se puede suponer que la distribución no es normal.
 
@@ -107,12 +110,16 @@ Por la media y el desvío, se puede suponer que la distribución no es normal.
 
 *Puntos*
 ```{r echo=FALSE}
-summarise(vinos, puntos_min = min(puntos, na.rm = TRUE), puntos_max = max(puntos, na.rm = TRUE))
+summarise(vinos, 
+          puntos_min = min(puntos, na.rm = TRUE),
+          puntos_max = max(puntos, na.rm = TRUE))
 ```
 
 *Precio*
 ```{r echo=FALSE}
-summarise(vinos, precio_min = min(precio, na.rm = TRUE), precio_max = max(precio, na.rm = TRUE))
+summarise(vinos, 
+          precio_min = min(precio, na.rm = TRUE), 
+          precio_max = max(precio, na.rm = TRUE))
 ```
 
 Se ve que los puntos no bajan de 80, y en base al máximo, mínimo y promedio de precios, que los precios altos tienen mucha dispersión, se alejan mucho de la media, con lo que existiría una asimetría hacia la derecha.
@@ -120,13 +127,20 @@ Se ve que los puntos no bajan de 80, y en base al máximo, mínimo y promedio de
 ## ¿Hay alguna anomalía que sugiera que hay datos incorrectos?
 
 No hay evidencias de que existan anomalías, solo algunos datos llamativos, como la diferencia entre la media de precios y los precios máximos
+```{r include=FALSE}
+puntos_media <- mean(vinos$puntos, na.rm = TRUE)
+puntos_ds <-  sd(vinos$puntos, na.rm = TRUE)
+precio_max <- max(vinos$precio, na.rm = TRUE) 
+```
+
+
 ```{r}
 tamanio_muestra <- nrow(vinos)
 precio_media  <-  mean(vinos$precio, na.rm = TRUE)
 precio_ds <-  sd(vinos$precio, na.rm = TRUE)
 precio_caro <- precio_media + 3*precio_ds
-vinos_caros <- nrow(filter(vinos, precio > precio_caro)) # se estimó con media(35.36) + 3 desvios estandar (41.02)
-precio_max <- summarise(vinos, max(precio, na.rm = TRUE)) 
+vinos_caros <- nrow(filter(vinos, precio > precio_caro)) # se estimó con media + 3 desvios estandar.
+precio_max <- max(vinos$precio, na.rm = TRUE) 
 ```
 ya que, aunque el máximo es ``r precio_max``, solo existen US\$``r vinos_caros`` que superen los US\$``r precio_caro``.
 
@@ -194,7 +208,6 @@ vinos |>
   ggplot(aes(precio_promedio, reorder(pais, precio_promedio))) +
   geom_col(width = 0.5, color='steelblue',fill='steelblue', alpha = 0.6) +
   labs(x = "Precio", y = "Pais")
-  
 ```
 
 Vemos una gran dispersión, con precios que van desde menos de US\$10 (Ucrania), hasta más de US\$85 (Suiza)
@@ -214,7 +227,6 @@ vinos |>
   ggplot(aes(resenias, reorder(pais, resenias))) +
   geom_col(width = 0.5, color='orangered',fill='orangered', alpha = 0.6) +
   labs(x = "Reseñas", y = "Pais")
-  
 ```
 
 Se ve que existen paises con muy pocas reseñas, por lo que vamos a filtrar aquellos paises cuyas cantidad de reseñas no sean representativas (0,1% del tamaño de la muestra, ``r round(tamanio_muestra/1000)``): 
@@ -243,19 +255,19 @@ Tampoco es posible determinar en base a los datos provistos los motivos de la va
 
 ### Habría una incremento en el precio promedio del vino conforme su puntaje.
 
-Primeramente, elaboramos un gráfico de dispersión de la relación puntaje y precio:
+Primeramente, elaboramos un gráfico de dispersión de la relación puntaje y precio,eliminando vinos de precios muy altos (> 1000), ya que acotaban la utilidad el gráfico:
 ```{r echo=FALSE}
 p <- vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |> 
+  filter(precio < 1000) |> 
   ggplot(aes(x=puntos, y=precio, color=desc(precio))) + 
     geom_jitter() +
     labs(x = "Puntos", y = "Precio (US$)", colour = "Precio")
 show(p)
 ```
 
-Este gráfico parecería mostrar que, si bien los vinos de puntaje bajo no suelen tener precio alto, existe vinos de precio bajo en casi todos los puntajes, aunque parecería ir en aumento el precio promedio conforme sube el puntaje. Para comprobarlo: 
-
+Este gráfico parecería mostrar que, si bien los vinos de puntaje bajo no suelen tener precio alto, existe vinos de precio bajo en casi todos los puntajes, comenzando a elevarse ligéramente el mínimo a partir del puntaje 95. Vamos a comprobar el promedio de precio para cada puntaje: 
 ```{r echo=FALSE}
 p <- vinos |>
   filter(!is.na(puntos)) |> 
@@ -268,9 +280,8 @@ p <- vinos |>
 show(p)
 ```
 
-Con esto se ve más claramente que el precio promedio de los vino se incrementa significativamente conforme el puntaje.
+Con esto se ve más claramente que el precio promedio de los vino se incrementa significativamente conforme el puntaje avanza, pero el crecimiento parece acentuarse a partir del 95.
 También podemos observar como se distribuyen los puntajes:
-
 ```{r echo=FALSE}
 vinos |>
   filter(!is.na(puntos)) |> 
@@ -286,7 +297,7 @@ vinos |>
   group_by(puntos) |> 
   summarise(precio_promedio = mean(precio, na.rm = TRUE), resenias = n()) |> 
   ggplot(aes(x = puntos, y = resenias)) +
-  geom_col()
+  geom_col(colour = "violetred4", fill = "violetred4",alpha = 0.3)
 ```
 
 Se observa que los puntajes parecerían tene una distribución semejante a la normal.
@@ -294,45 +305,93 @@ Se observa que los puntajes parecerían tene una distribución semejante a la no
 Vamos a ver si existe algun otro rasgo relevante de la relación puntaje y precio. Primeramente creamos una nueva variable que las relacione:
 ```{r}
 vinos_ratio <- vinos |> 
-  mutate(ratio = precio*puntos*0.01)
-show(max(vinos_ratio$ratio, na.rm = TRUE))
-show(min(vinos_ratio$ratio, na.rm = TRUE))
+  mutate(ratio = puntos/precio)
 ```
 
-Y luego veamos si existe una relacíon entre la cantidad de reseñas y este ratio puntaje/precio:
+Se divide el puntaje por el precio. Con un puntaje promedio de ``r round(puntos_media, 2)`` y un precio promedio de ``r round(precio_media, 2)``, se estima que los ratios por encima de ``r reound(puntos_media/precio_media, 2)`` serían deseables.
+Esto implica que un vino de puntaje 80 y precio US\$40 tendría un ratio de 2, lo mismo que un vino de 100 puntos y precio de US\$50, por lo que no sabemos si convendría utilizar algún factor para ajustar el impacto del precio en el ratio.
+
+*Ratio*
 ```{r echo=FALSE}
-vinos_ratio |> 
-  filter(!is.na(ratio)) |>
-  group_by(cut(ratio, 15)) |>
-  summarise(n = n())
+summarise(vinos_ratio, ratio_max = max(ratio, na.rm = TRUE),
+          ratio_min = min(ratio, na.rm = TRUE), 
+          ratio_md = mean(ratio, na.rm = TRUE),
+          ratio_ds = sd(ratio, na.rm = TRUE))
 ```
-           
 
-```{r}
+
+Graficamos la relacíon entre la cantidad de reseñas y este ratio puntaje/precio:
+```{r echo=FALSE}
 # vinos_ratio |> 
 #   filter(!is.na(ratio)) |>
-#   group_by(cut(ratio, 100)) |>
+#   group_by(cut(ratio, 15)) |>
 #   summarise(n = n())
 
 vinos_ratio |> 
   filter(!is.na(ratio)) |>
-  filter(ratio < 500) |>
   group_by(ratio) |>
   ggplot(aes(ratio)) +
-  geom_histogram()
-           
+  geom_histogram(colour = "violetred4", fill = "violetred4",alpha = 0.3, binwidth = 0.15)
+  
+```
+Por último, podemos comparar el mismo grupo de países que utilizamos para el precio promedio, esta vez con el puntaje promedio:
+```{r}
+vinos |> 
+  filter(!is.na(pais)) |> 
+  group_by(pais) |> 
+  summarise(puntos_promedio = mean(puntos, na.rm = TRUE), resenias = n()) |>
+  filter(resenias > tamanio_muestra/1000) |> 
+  filter(!is.na(puntos_promedio)) |> 
+  ggplot(aes(puntos_promedio, reorder(pais, puntos_promedio))) +
+  geom_col(width = 0.5, color='orange',fill='orange', alpha = 0.6) +
+  labs(x = "Puntaje", y = "Pais") +
+  coord_cartesian(xlim = c(80, 100))
 ```
 
+Se utiliza una escala de 80 a 100, ya que no existen reseñas con valores por fuera de ese rango. Se ve, que al contrario del precio promedio, el puntaje no tiene tanta variabilidad.
 
 
-*Conclusiones:* Entendemos que existe una correlación entre el puntaje y el precio, aunque desconocemos si esto puede deberse a un sesgo de quien evalúa (que podría tender a asignar puntajes altos a vinos caros) o a una efectiva correlación entre calidad y precio, ya que hay muchos vinos de
+*Conclusiones:* Entendemos que existe una correlación entre el puntaje y el precio, aunque desconocemos si esto puede deberse a un sesgo de quien evalúa (que podría tender a asignar puntajes altos a vinos caros) o a una efectiva correlación entre calidad y precio, ya que hay muchos vinos de bajo precio con alto puntaje.
 
 
 ## Hipótesis 3
 
 ### Existirían variedades que podrían tener un precio promedio significativamente mayor, pero no así su puntaje.
 
-Me atrasé. Entrego hasta acá, y si puedo hago un nuevo commit.
+```{r echo=FALSE}
+vinos_ratio |> 
+  filter(!is.na(variedad)) |> 
+  group_by(variedad) |> 
+  summarise(puntos_promedio = mean(puntos, na.rm = TRUE),
+            precio_promedio = mean(precio, na.rm = TRUE),
+            ratio_promedio = mean(ratio, na.rm = TRUE),
+            resenias = n()) |> 
+  arrange(resenias)
+```
+
+Por la cantidad de variedades encontradas (``r nrow(cepas)``), es complejo, por lo que se reduce nuevamente a aquellas que tengan una cantidad significativa de reseñas.
+
+```{r echo=FALSE}
+vinos_ratio |> 
+  filter(!is.na(variedad)) |> 
+  group_by(variedad) |> 
+  summarise(puntos_promedio = mean(puntos, na.rm = TRUE),
+            precio_promedio = mean(precio, na.rm = TRUE),
+            ratio_promedio = mean(ratio, na.rm = TRUE),
+            resenias = n()) |>
+  filter(resenias > tamanio_muestra/200) |> 
+  arrange(resenias) |>
+  ggplot() +
+  geom_col(aes(-puntos_promedio+80, reorder(variedad, precio_promedio)), width = 0.5, color='purple4',fill='purple4', alpha = 0.6) +
+  geom_col(aes(precio_promedio, reorder(variedad, precio_promedio)), width = 0.5, color='red4',fill='red4', alpha = 0.6) +
+  labs(x = "Puntaje - Precio", y = "Variedad")
+  
+  
+```
+
+Para este gráfico, se opusieron puntaje a la izquierda (escala de 80 a 100) y precio a la derecha.
+
+*Conclusiones:* Cremos que el gráfico muestra que existe una diferencia del precio promedio de las variedades más reseñadas, mientras que este precio, al menos a simple vista, no tendría correlato en el puntaje promedio.
 
 
 
