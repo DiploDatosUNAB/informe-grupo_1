@@ -21,7 +21,7 @@ output:
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 # Cargar los paquetes necesarios acá
 library(readr)
 library(dplyr)
@@ -348,7 +348,7 @@ Primeramente, se elabora un gráfico de dispersión de la relación puntaje y pr
 ##
 Este gráfico brinda poca información. Parecería que existen vinos de precio bajo en casi todos los puntajes, y el precio mínimo parece elevarse ligeramente a partir del puntaje 95.
 
-```{r linear, eval=FALSE, include=FALSE}
+```{r linear, echo=FALSE}
 p <- vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |> 
@@ -363,7 +363,7 @@ show(p)
 ##
 Si cambiamos la escala:
 
-```{r}
+```{r log, echo=FALSE}
 q <- vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |> 
@@ -372,10 +372,10 @@ q <- vinos |>
   geom_jitter() +
   scale_color_gradient(trans = "log", low="blue", high="red") + 
   labs(x = "Puntos", y = "Precio (US$)", colour = "Precio (US$)") +
-  # stat_smooth(method = "lm",
-  #            formula = y ~ x,
-  #            geom = "smooth",
-  #            color="black")
+  stat_smooth(method = "lm",
+            formula = y ~ x,
+            geom = "smooth",
+            color="black")
 show(q)
 ```
 
@@ -397,7 +397,7 @@ p <- vinos |>
 show(p)
 ```
 
-Con esto se ve más claramente que el precio promedio de los vino se incrementa significativamente conforme el puntaje avanza, pero el crecimiento sigue una tendencia más exponencial que lineal.
+Con esto se aprecia que el precio promedio de los vino se incrementa, pero el crecimiento sigue una tendencia más exponencial que lineal.
 
 ##
 También podemos observar como se distribuyen los puntajes:
@@ -425,46 +425,40 @@ vinos |>
 
 Se observa que los puntajes parecerían tene una distribución semejante a la normal.
 
-##
-Vamos a ver si existe algun otro rasgo relevante de la relación puntaje y precio. Primeramente creamos una nueva variable que las relacione:
-```{r}
-vinos_ratio <- vinos |> 
-  mutate(ratio = puntos/log(precio))
-```
+```{r eval=FALSE, include=FALSE}
+# Esta sección quedó descartada
+#Vamos a ver si existe algun otro rasgo relevante de la relación puntaje y precio. Primeramente creamos una nueva variable que las relacione:
+vinos_ratio <- vinos |>
+mutate(ratio = puntos/log(precio))
 
-Se divide el puntaje por el precio. Con un puntaje promedio de ``r round(puntos_media, 2)`` y un precio promedio de ``r round(precio_media, 2)``, se estima que los ratios por encima de ``r round(puntos_media/precio_media, 2)`` serían deseables.
-Esto implica que un vino de puntaje 80 y precio US\$40 tendría un ratio de 2, lo mismo que un vino de 100 puntos y precio de US\$50, por lo que no sabemos si convendría utilizar algún factor para ajustar el impacto del precio en el ratio.
-
-*Ratio*
-```{r echo=FALSE}
-summarise(vinos_ratio, ratio_max = max(ratio, na.rm = TRUE),
-          ratio_min = min(ratio, na.rm = TRUE), 
+# Se divide el puntaje por el logaritmo del precio, ya que se observó que no tienen una relación lineal. Con esto, lo que se intenta es obtener un valor que oriente sobre la relación calidad/precio de un vino.
+# *Ratio*
+# 
+summarise(vinos_ratio, ratio_min = min(ratio, na.rm = TRUE),
+          ratio_max = max(ratio, na.rm = TRUE),
           ratio_md = mean(ratio, na.rm = TRUE),
-          ratio_ds = sd(ratio, na.rm = TRUE)) |> 
-  kable(col.names = c("Máximo de Ratio", "Mínimo de Ratio", "Media", "Desvío Estándar")) |>
+          ratio_ds = sd(ratio, na.rm = TRUE)) |>
+  kable(col.names = c("Mínimo de Ratio", "Máximo de Ratio", "Media", "Desvío Estándar")) |>
   kable_styling(full_width = FALSE)
-```
-##
-Graficamos la relacíon entre la cantidad de reseñas y este ratio puntaje/precio:
 
-```{r echo=FALSE}
-# vinos_ratio |> 
-#   filter(!is.na(ratio)) |>
-#   group_by(cut(ratio, 15)) |>
-#   summarise(n = n())
+# Graficamos la relacíon entre la cantidad de reseñas y este ratio puntaje/precio:
 
-vinos_ratio |> 
+vinos_ratio |>
+  filter(!is.na(ratio)) |>
+  group_by(cut(ratio, 15)) |>
+  summarise(n = n())
+
+vinos_ratio |>
   filter(!is.na(ratio)) |>
   group_by(ratio) |>
   ggplot(aes(ratio)) +
-  geom_histogram(colour = "violetred4", fill = "violetred4",alpha = 0.3, binwidth = 0.15)
-  
+  geom_histogram(colour = "violetred4", fill = "violetred4",alpha = 0.3, binwidth = 0.35)
 ```
 
 ##
-Por último, podemos comparar el mismo grupo de países que utilizamos para el precio promedio, esta vez con el puntaje promedio:
+Por último, para relacionar con la hipótesis 1, comparamos puntaje promedio conforme paises:
 
-```{r}
+```{r echo=FALSE}
 vinos |> 
   filter(!is.na(pais)) |> 
   group_by(pais) |> 
@@ -477,9 +471,9 @@ vinos |>
   coord_cartesian(xlim = c(80, 100))
 ```
 
-##
-Se utiliza una escala de 80 a 100, ya que no existen reseñas con valores por fuera de ese rango. Se ve, que al contrario del precio promedio, el puntaje no tiene tanta variabilidad.
+Se ve, que al contrario del precio promedio, el puntaje promedio no parecería tiene mucha variabilidad.
 
+##
 
 *Conclusiones:* Entendemos que existe una correlación entre el puntaje y el precio, aunque desconocemos si esto puede deberse a un sesgo de quien evalúa (que podría tender a asignar puntajes altos a vinos caros) o a una efectiva correlación entre calidad y precio, ya que hay muchos vinos de bajo precio con alto puntaje.
 
@@ -489,28 +483,27 @@ Se utiliza una escala de 80 a 100, ya que no existen reseñas con valores por fu
 
 ##
 ```{r echo=FALSE}
-vinos_ratio |> 
+vinos |> 
   filter(!is.na(variedad)) |> 
   group_by(variedad) |> 
   summarise(puntos_promedio = mean(puntos, na.rm = TRUE),
             precio_promedio = mean(precio, na.rm = TRUE),
-            ratio_promedio = mean(ratio, na.rm = TRUE),
             resenias = n()) |> 
   arrange(resenias) |> 
-  kable(col.names = c("Variedad", "Puntaje Promedio", "Precio Promedio", "Ratio Promedio", "Reseñas")) |>
+  head(10) |> 
+  kable(col.names = c("Variedad", "Puntaje Promedio", "Precio Promedio", "Reseñas")) |>
   kable_styling(full_width = FALSE)
 ```
 
-Por la cantidad de variedades encontradas (``r variedades_len``), es complejo, por lo que se reduce nuevamente a aquellas que tengan una cantidad significativa de reseñas.
+Por la cantidad de variedades encontradas (``r variedades_len``), y la escasa cantidad de reseñas de muchas, se agrupan en "Otras" las variedades sin una cantidad significativa de reseñas.
 
 ##
 ```{r echo=FALSE}
-vinos_ratio |> 
+vinos |> 
   filter(!is.na(variedad)) |> 
   group_by(variedad = fct_lump_min(variedad, tamanio_muestra/200, other_level = "Otras")) |>
   summarise(puntos_promedio = mean(puntos, na.rm = TRUE),
             precio_promedio = mean(precio, na.rm = TRUE),
-            ratio_promedio = mean(ratio, na.rm = TRUE),
             resenias = n()) |>
   # filter(resenias > tamanio_muestra/200) |> 
   arrange(resenias) |>
@@ -518,14 +511,13 @@ vinos_ratio |>
   geom_col(aes(-puntos_promedio+80, reorder(variedad, precio_promedio)), width = 0.5, color='purple4',fill='purple4', alpha = 0.6) +
   geom_col(aes(precio_promedio, reorder(variedad, precio_promedio)), width = 0.5, color='red4',fill='red4', alpha = 0.6) +
   labs(x = "Puntaje - Precio", y = "Variedad")
-  
-  
 ```
 
-##
 Para este gráfico, se opusieron puntaje a la izquierda (escala de 80 a 100) y precio a la derecha.
 
-*Conclusiones:* Cremos que el gráfico muestra que existe una diferencia del precio promedio de las variedades más reseñadas, mientras que este precio, al menos a simple vista, no tendría correlato en el puntaje promedio.
+##
+
+*Conclusiones:* Se estima que el gráfico da cuenta de que  existe una diferencia del precio promedio de las variedades más reseñadas, pero que este precio no correlaciona (al menos a simple vista) con el puntaje promedio. Lo anterior podría deberse a varias causas. Una hipótesis es que las variedades o cepas podrían tener un precio promedio distinto en base a los costos de su producción, la dificultad específica de su cultivo,  tiempo de procesamiento, o su exclusividad, entre otros.
 
 
 
