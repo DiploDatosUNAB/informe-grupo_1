@@ -13,9 +13,12 @@ output:
    highlight: breezedark
    transition: fade
    background_transition: fade
-   slideNumber: true
-   mouseWheel: true
-   previewLinks: true
+   width: 960
+   height: 700
+   # scrollable: true
+   # slideNumber: true
+   # mouseWheel: true
+   # previewLinks: true
 ---
 
 
@@ -43,19 +46,19 @@ library(kableExtra)
 
 ## ¿Qué datos son?
 
-La base posee datos sobre diferentes vinos y sus reseñas. El detalle de los datos lo transcribo del diccionario:
+La base posee datos sobre diferentes vinos y sus reseñas. El detalle de los datos se transcribe del diccionario:
 
 |Variable       |Clase               |Descripción |
 |:--------------|:-------------------|:-----------|
-| pais | caracter | País de origen |
-| nombre | caracter | Nombre del vino |
-| puntos | entero | Puntos con que fue calificado (1 a 100) |
-| precio | entero | Precio de la botella (en dólares) |
+| pais | caracter | País de origen. |
+| nombre | caracter | Nombre del vino. |
+| puntos | entero | Puntos con que fue calificado (1 a 100). |
+| precio | entero | Precio de la botella (en dólares). |
 | provincia | caracter | Lugar de origen. |
 | zona_1 | caracter | Información adicional sobre zona de origen. |
-| zona_2 | caracter | Más información adicional |
-| variedad | caracter | Variedad (ie, Pinot Noir) |
-| vina | caracter | Nombre de la viña |
+| zona_2 | caracter | Más información adicional. |
+| variedad | caracter | Variedad (ie, Pinot Noir). |
+| vina | caracter | Nombre de la viña. |
 | titulo_resena| caracter | Título de la reseña. |
 
 ## ¿De dónde provienen?
@@ -63,11 +66,13 @@ La base posee datos sobre diferentes vinos y sus reseñas. El detalle de los dat
 La fuente de los datos es la revista [Wine Enthusiast](http://www.winemag.com/?s=&drink_type=wine), extraidos por *zackthoutt* y alojados en [Kaggle](https://www.kaggle.com/zynicide/wine-reviews), de donde fueron tomados y luego traducidos.
 
 ## ¿Quién los tomó?
-![](https://iili.io/HgxBOjn.jpg)
+![mona](https://iili.io/HgxBOjn.jpg){width=600}
 
 ## ¿En qué período se tomaron?
 
-El dataset en español es de 2019-06-12 (dato obtenido de la [url](https://raw.githubusercontent.com/cienciadedatos/datos-de-miercoles/master/datos/2019/2019-06-12/vinos.csv)), el original en inglés de Keggle fue actualizado por última vez hace 5 años (2018), pero no se indica la fecha exacta de procedencia de los datos.
+El dataset en español es de 2019-06-12 (dato obtenido de la [url](https://raw.githubusercontent.com/cienciadedatos/datos-de-miercoles/master/datos/2019/2019-06-12/vinos.csv) de origen del dataset). 
+
+El original en inglés de Keggle fue actualizado por última vez hace 5 años (2018), pero no se indica la fecha exacta de procedencia de los datos.
 
 # Exploración de los datos
 
@@ -95,7 +100,11 @@ vinos  <-  read_csv('datos/vinos.csv', show_col_types = FALSE)
 
 Luego se presenta una muestra:
 ```{r echo=FALSE}
-sample_n(vinos,5) 
+sample_n(vinos,4) |> 
+  kable() |> 
+# kable_material_dark(c("hover", "condensed", "responsive"), font_size = 11) |> 
+  # kable_styling(bootstrap_options = c("hover", "condensed", "responsive"), font_size = 11)
+  kable_styling(font_size = 15)
 ```
 
 ```{r include=FALSE}
@@ -127,7 +136,7 @@ El dataset tiene ``r observaciones`` observaciones y ``r variables`` variables.
 
 ## Variables a analizar
 
-Se consideran las variables **puntos** y **precio** para el análisis, ya que son las únicas numéricas, por lo que permiten mayores análisis que el resto de las variables del dataset, que son categóricas.
+Se consideran las variables `puntos` y `precio` para el análisis, ya que son las únicas numéricas, por lo que permiten mayores análisis que el resto de las variables del dataset, que son categóricas.
 
 
 ## ¿Cuál es su valor medio y desvío estándar?
@@ -136,7 +145,9 @@ Se consideran las variables **puntos** y **precio** para el análisis, ya que so
 ```{r echo=FALSE}
 summarise(vinos, 
           puntos_media = mean(puntos, na.rm = TRUE),
-          puntos_ds = sd(puntos, na.rm = TRUE))
+          puntos_ds = sd(puntos, na.rm = TRUE)) |>
+  kable(col.names = c("Media", "Desvío Estándar")) |> 
+  kable_styling(full_width = FALSE)
 ```
 Por la media y el desvío, se puede estimar, asumiendo que las calificaciones tienen distribución normal, que el 68% de la muestra se encuentra entre ``r round(puntos_media - puntos_ds)`` y ``r round(puntos_media + puntos_ds)`` puntos.
 
@@ -146,7 +157,9 @@ Por la media y el desvío, se puede estimar, asumiendo que las calificaciones ti
 summarise(vinos, 
           puntos_media = mean(puntos, na.rm = TRUE),
           puntos_mediana = median(puntos, na.rm = TRUE),
-          puntos_moda = mode(puntos, na.rm = TRUE))
+          puntos_moda = mode(puntos, na.rm = TRUE)) |>
+  kable(col.names = c("Media", "Mediana", "Moda")) |>
+  kable_styling(full_width = FALSE)
 ```
 
 La similitud entre media, mediana y moda permite suponer una distribución, si no normal, al menos simétrica.
@@ -157,18 +170,21 @@ La similitud entre media, mediana y moda permite suponer una distribución, si n
 ```{r echo=FALSE}
 summarise(vinos, 
           precio_media = mean(precio, na.rm = TRUE),
-          precio_ds = sd(precio, na.rm = TRUE))
+          precio_ds = sd(precio, na.rm = TRUE)) |>
+  kable(col.names = c("Media", "Desvío Estándar")) |>
+  kable_styling(full_width = FALSE)
 ```
 Por la media y el desvío, se puede suponer que la distribución no es normal.
 
 . . .
 
-
 ```{r echo=FALSE}
 summarise(vinos, 
           precio_media = mean(precio, na.rm = TRUE),
           precio_mediana = median(precio, na.rm = TRUE),
-          precio_moda = mode(precio, na.rm = TRUE))
+          precio_moda = mode(precio, na.rm = TRUE)) |> 
+  kable(col.names = c("Media", "Mediana", "Moda")) |>
+  kable_styling(full_width = FALSE)
 ```
 
 La diferencia entre moda, mediana y media, confirma esto, permitiendo estimar una distribución asimétrica hacia la derecha.
@@ -179,31 +195,35 @@ La diferencia entre moda, mediana y media, confirma esto, permitiendo estimar un
 ```{r echo=FALSE}
 summarise(vinos, 
           puntos_min = min(puntos, na.rm = TRUE),
-          puntos_max = max(puntos, na.rm = TRUE))
+          puntos_max = max(puntos, na.rm = TRUE)) |> 
+  kable(col.names = c("Mínimo", "Máximo")) |>
+  kable_styling(full_width = FALSE)
 ```
-Puede observarse que los puntos no bajan de ``r puntos_min``, por lo que la calificación oscila en un rango de ``r puntos_max - puntos_min`` puntos.
+Puede observarse que los puntos no bajan de ``r puntos_min``, por lo que la calificación oscila en un rango de solo ``r puntos_max - puntos_min`` puntos.
+
+. . .
 
 *Precio*
 ```{r echo=FALSE}
 summarise(vinos, 
           precio_min = min(precio, na.rm = TRUE), 
-          precio_max = max(precio, na.rm = TRUE))
+          precio_max = max(precio, na.rm = TRUE)) |> 
+  kable(col.names = c("Mínimo", "Máximo")) |>
+  kable_styling(full_width = FALSE)
 ```
 
 Se confirma que los precios altos tienen gran dispersión y se alejan mucho de la media, lo que ratifica una asimetría hacia la derecha.
 
 ## ¿Hay alguna anomalía que sugiera que hay datos incorrectos?
 
-No hay evidencias de que existan anomalías en los datos, solo algunos valores llamativos, como la diferencia entre la media de precios y los precios máximos, ya que, aunque el máximo es US\$``r precio_max``, solo existen ``r vinos_caros`` (de un total de ``r tamanio_muestra``) que superen los US\$``r round(precio_caro)``(promedio de precio + 3 dasvíos estándar). 
+No hay evidencias de que existan anomalías en los datos, solo algunos valores llamativos, como la diferencia entre la media de precios y los precios máximos, ya que, aunque el máximo es US\$``r precio_max``, solo existen ``r vinos_caros`` (de un total de ``r tamanio_muestra``) que superen los US\$``r round(precio_caro)`` (promedio de precio + 3 desvíos estándar). 
 
-También llamó la atención la cantidad de cepas o variedades de vino, ``r variedades_len``, pero únicamente porque superó ampliamente el número esperado.
+También llamó la atención la cantidad de cepas o variedades de vino (``r variedades_len``), pero únicamente porque superó ampliamente el número esperado.
 
 La dispersión de precios puede observarse mejor mediante un gráfico:
 
 ##
-(los precios mayores a ``r round(precio_caro)`` fueron excluidos)
 ```{r echo=FALSE}
-# precios <- select(vinos, precio)
 p <- vinos |>
   filter(precio <= precio_caro) |>
   ggplot(aes(x=precio, fill = cut(precio, 100))) + 
@@ -212,6 +232,7 @@ p <- vinos |>
 show(p)
 ```
 
+(los precios mayores a ``r round(precio_caro)`` fueron excluidos)
 
 ## ¿Cuántas observaciones hay por cada grupo? ¿Cuántos valores faltantes? ¿Hay diferencias?
 
@@ -219,7 +240,9 @@ Se contabiliza el porcentaje de valores N/A (vacíos), para cada una de las vari
 
 ```{r}
 prop_no_encontrados <- round(colSums(is.na(vinos))/nrow(vinos),4)*100
-show(prop_no_encontrados)
+show(prop_no_encontrados) |> 
+  kable() |>
+  kable_styling(full_width = FALSE)
 ```
 Pueden encontrarse bastantes valores faltantes, pero únicamente en las columnas de nombre (``r prop_no_encontrados[2]``%), region_1 (``r prop_no_encontrados[6]``%) y region_2 (``r prop_no_encontrados[6]``%).
 
@@ -246,7 +269,7 @@ Se presentan 3 hipótesis:
 ```
 
 ## Hipótesis 1
-*Podría existir una diferencia notable entre el promedio de precios de los vinos según el país.*
+>Podría existir una diferencia notable entre el promedio de precios de los vinos según el país.
 
 
 Para analizar esto, primero, se realiza un gráfico para ver los promedios de precio x país:
@@ -263,8 +286,9 @@ vinos |>
   labs(x = "Precio", y = "Pais")
 ```
 
-##
 Se ve una gran dispersión, con precios que van desde menos de US\$10 (Ucrania), hasta más de US\$85 (Suiza).
+
+##
 
 Para verificar que estos promedios sean estadísticamente significativos, se analiza cuantas reseñas hay de cada pais:
 
@@ -273,8 +297,13 @@ vinos |>
   filter(!is.na(pais)) |> 
   group_by(pais) |> 
   summarise(resenias = n()) |>
-  arrange(resenias)
+  arrange(resenias) |>
+  head(10) |> 
+  kable(col.names = c("País", "Reseñas")) |>
+  kable_styling(full_width = FALSE)
 ```
+
+Destacan varios paises casi sin reseñas. Gráficamente:
 
 ##
 ```{r echo=FALSE}
@@ -287,10 +316,9 @@ vinos |>
   labs(x = "Reseñas", y = "Pais")
 ```
 
-Al existir paises con muy pocas reseñas, conviene filtrarlos:
+Al existir paises con tan pocas reseñas, conviene filtrarlos o agruparlos:
 
 ##
-(Otros = <0,1% del tamaño de la muestra) 
 
 ```{r echo=FALSE}
 vinos |> 
@@ -303,46 +331,74 @@ vinos |>
   labs(x = "Precio", y = "Pais")
 ```
 
+Otros = paises con pocas reseñas
+
+(<0,1% del tamaño de la muestra) 
+
 ##
-*Conclusiones:* Se constata una diferencia significativa entre los precios promedio según el pais de origen del vino, ya sea contabilizando todos o excluyendo los menos representativos. 
+**Conclusiones:** Se constata una diferencia significativa entre los precios promedio según el pais de origen del vino, ya sea contabilizando todos o excluyendo los menos representativos. 
 
 Respecto de la cantidad de reseñas, no es posible establecer si es una limitación de la muestra, con mayor acceso o interés en vinos locales (las reseñas de EEUU casi triplican a las del segundo, Francia), si existen menos reseñas por tener menor producción de vino, u otros motivos. 
 
 Tampoco es posible determinar los motivos de la variación de precio. Puede suponerse que influya la reputación vitivinícola, el tamaño de las economías (países con economías desarrolladas parecen ocupar los 1ros puestos), u otras causas.
 
 ## Hipótesis 2
-*Habría una incremento en el precio promedio del vino conforme su puntaje.*
+>Habría una incremento en el precio promedio del vino conforme su puntaje.
 
-Primeramente, elaboramos un gráfico de dispersión de la relación puntaje y precio,eliminando vinos de precios muy altos (> 1000), ya que acotaban la utilidad el gráfico:
+Primeramente, se elabora un gráfico de dispersión de la relación puntaje y precio, eliminando vinos de precios muy altos (> 1000), ya que limitan la utilidad el gráfico:
 
 ##
+Este gráfico brinda poca información. Parecería que existen vinos de precio bajo en casi todos los puntajes, y el precio mínimo parece elevarse ligeramente a partir del puntaje 95.
 ```{r echo=FALSE}
 p <- vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |> 
-  filter(precio < 1000) |> 
-  ggplot(aes(x=puntos, y=precio, color=desc(precio))) + 
-    geom_jitter() +
-    labs(x = "Puntos", y = "Precio (US$)", colour = "Precio")
+  filter(precio < 1000) |>
+  ggplot(aes(x=puntos, y=precio, color=precio)) +
+  geom_jitter() +
+  scale_color_gradient(low="blue", high="red") + 
+  labs(x = "Puntos", y = "Precio (US$)", colour = "Precio")
 show(p)
 ```
 
-Este gráfico parecería mostrar que, si bien los vinos de puntaje bajo no suelen tener precio alto, existe vinos de precio bajo en casi todos los puntajes, comenzando a elevarse ligéramente el mínimo a partir del puntaje 95. Vamos a comprobar el promedio de precio para cada puntaje: 
+##
+Si cambiamos la escala:
+
+```{r echo=FALSE}
+p <- vinos |>
+  filter(!is.na(puntos)) |> 
+  filter(!is.na(precio)) |> 
+  ggplot(aes(x=puntos, y=precio, colour=precio)) +
+  scale_y_log10() +
+  geom_jitter() +
+  scale_color_gradient(trans = "log", low="blue", high="red") + 
+  labs(x = "Puntos", y = "Precio (US$)", colour = "Precio (US$)") +
+  # stat_smooth(method = "lm",
+  #             formula = y ~ x,
+  #             geom = "smooth",
+  #             color="black")
+show(p)
+```
+
+Una escala logarítmica permite apreciar mucho mejor la relación existente entre precio y puntaje.
 
 ##
+Vamos a comprobar el precio promedio para cada puntaje: 
+ 
 ```{r echo=FALSE}
 p <- vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |>
   group_by(puntos) |> 
   summarise(precio_promedio = mean(precio, na.rm = TRUE)) |>
-  ggplot(aes(x=puntos, y=precio_promedio, fill=desc(precio_promedio))) + 
-    geom_col() +
-    labs(x = "Puntos", y = "Precio (US$)", fill = "Precio")
+  ggplot(aes(x=puntos, y=precio_promedio, fill=precio_promedio)) + 
+  geom_col() +
+  scale_color_binned(trans = "log") + 
+  labs(x = "Puntos", y = "Precio (US$)", fill = "Precio (US$)")
 show(p)
 ```
 
-Con esto se ve más claramente que el precio promedio de los vino se incrementa significativamente conforme el puntaje avanza, pero el crecimiento parece acentuarse a partir del 95.
+Con esto se ve más claramente que el precio promedio de los vino se incrementa significativamente conforme el puntaje avanza, pero el crecimiento sigue una tendencia más exponencial que lineal.
 También podemos observar como se distribuyen los puntajes:
 
 ##
@@ -351,7 +407,9 @@ vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |>
   group_by(puntos) |> 
-  summarise(precio_promedio = mean(precio, na.rm = TRUE), resenias = n())
+  summarise(precio_promedio = mean(precio, na.rm = TRUE), resenias = n()) |> 
+  kable(col.names = c("Puntos", "Precio Promedio", "Reseñas")) |>
+  kable_styling(full_width = FALSE)
 ```
 
 ##
@@ -382,7 +440,9 @@ Esto implica que un vino de puntaje 80 y precio US\$40 tendría un ratio de 2, l
 summarise(vinos_ratio, ratio_max = max(ratio, na.rm = TRUE),
           ratio_min = min(ratio, na.rm = TRUE), 
           ratio_md = mean(ratio, na.rm = TRUE),
-          ratio_ds = sd(ratio, na.rm = TRUE))
+          ratio_ds = sd(ratio, na.rm = TRUE)) |> 
+  kable(col.names = c("Máximo de Ratio", "Mínimo de Ratio", "Media", "Desvío Estándar")) |>
+  kable_styling(full_width = FALSE)
 ```
 ##
 Graficamos la relacíon entre la cantidad de reseñas y este ratio puntaje/precio:
@@ -425,7 +485,7 @@ Se utiliza una escala de 80 a 100, ya que no existen reseñas con valores por fu
 
 
 ## Hipótesis 3
-*Existirían variedades que podrían tener un precio promedio significativamente mayor, pero no así su puntaje.*
+>Existirían variedades que podrían tener un precio promedio significativamente mayor, pero no así su puntaje.
 
 ##
 ```{r echo=FALSE}
@@ -436,7 +496,9 @@ vinos_ratio |>
             precio_promedio = mean(precio, na.rm = TRUE),
             ratio_promedio = mean(ratio, na.rm = TRUE),
             resenias = n()) |> 
-  arrange(resenias)
+  arrange(resenias) |> 
+  kable(col.names = c("Variedad", "Puntaje Promedio", "Precio Promedio", "Ratio Promedio", "Reseñas")) |>
+  kable_styling(full_width = FALSE)
 ```
 
 Por la cantidad de variedades encontradas (``r variedades_len``), es complejo, por lo que se reduce nuevamente a aquellas que tengan una cantidad significativa de reseñas.
