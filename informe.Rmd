@@ -26,11 +26,16 @@ library(readr)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
+library(knitr)
 library(forcats)
+library(kableExtra)
 
 #links de referencia:
 # https://github.com/rstudio/revealjs
 # https://revealjs.com/config/
+# https://rpubs.com/joser/RegresionSimple
+# https://www.novatostradingclub.com/herramientas-trading/escala-logaritmica-y-escala-lineal-en-los-graficos-cual-usar/
+# https://paocorrales.github.io/deExcelaR/11-tablas.html
 ```
 
 # Introducción
@@ -90,7 +95,7 @@ vinos  <-  read_csv('datos/vinos.csv', show_col_types = FALSE)
 
 Luego se presenta una muestra:
 ```{r echo=FALSE}
-sample_n(vinos,5)
+sample_n(vinos,5) 
 ```
 
 ```{r include=FALSE}
