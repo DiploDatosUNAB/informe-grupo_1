@@ -13,8 +13,6 @@ output:
    highlight: breezedark
    transition: fade
    background_transition: fade
-   width: 960
-   height: 700
    # scrollable: true
    # slideNumber: true
    # mouseWheel: true
@@ -23,7 +21,7 @@ output:
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 # Cargar los paquetes necesarios acá
 library(readr)
 library(dplyr)
@@ -349,6 +347,7 @@ Primeramente, se elabora un gráfico de dispersión de la relación puntaje y pr
 
 ##
 Este gráfico brinda poca información. Parecería que existen vinos de precio bajo en casi todos los puntajes, y el precio mínimo parece elevarse ligeramente a partir del puntaje 95.
+
 ```{r linear, echo=FALSE}
 p <- vinos |>
   filter(!is.na(puntos)) |> 
@@ -364,8 +363,8 @@ show(p)
 ##
 Si cambiamos la escala:
 
-```{r log, echo=FALSE}
-p <- vinos |>
+```{r}
+q <- vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |> 
   ggplot(aes(x=puntos, y=precio, colour=precio)) +
@@ -373,11 +372,11 @@ p <- vinos |>
   geom_jitter() +
   scale_color_gradient(trans = "log", low="blue", high="red") + 
   labs(x = "Puntos", y = "Precio (US$)", colour = "Precio (US$)") +
-  # stat_smooth(method = "lm",
-  #             formula = y ~ x,
-  #             geom = "smooth",
-  #             color="black")
-show(p)
+  stat_smooth(method = "lm",
+             formula = y ~ x,
+             geom = "smooth",
+             color="black")
+show(q)
 ```
 
 Una escala logarítmica permite apreciar mucho mejor la relación existente entre precio y puntaje.
@@ -399,9 +398,10 @@ show(p)
 ```
 
 Con esto se ve más claramente que el precio promedio de los vino se incrementa significativamente conforme el puntaje avanza, pero el crecimiento sigue una tendencia más exponencial que lineal.
-También podemos observar como se distribuyen los puntajes:
 
 ##
+También podemos observar como se distribuyen los puntajes:
+
 ```{r echo=FALSE}
 vinos |>
   filter(!is.na(puntos)) |> 
