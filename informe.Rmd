@@ -348,7 +348,7 @@ Primeramente, se elabora un gráfico de dispersión de la relación puntaje y pr
 ##
 Este gráfico brinda poca información. Parecería que existen vinos de precio bajo en casi todos los puntajes, y el precio mínimo parece elevarse ligeramente a partir del puntaje 95.
 
-```{r linear, echo=FALSE}
+```{r linear, eval=FALSE, include=FALSE}
 p <- vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |> 
@@ -372,10 +372,10 @@ q <- vinos |>
   geom_jitter() +
   scale_color_gradient(trans = "log", low="blue", high="red") + 
   labs(x = "Puntos", y = "Precio (US$)", colour = "Precio (US$)") +
-  stat_smooth(method = "lm",
-             formula = y ~ x,
-             geom = "smooth",
-             color="black")
+  # stat_smooth(method = "lm",
+  #            formula = y ~ x,
+  #            geom = "smooth",
+  #            color="black")
 show(q)
 ```
 
@@ -409,7 +409,7 @@ vinos |>
   group_by(puntos) |> 
   summarise(precio_promedio = mean(precio, na.rm = TRUE), resenias = n()) |> 
   kable(col.names = c("Puntos", "Precio Promedio", "Reseñas")) |>
-  kable_styling(full_width = FALSE)
+  kable_styling(full_width = FALSE, font_size = 18)
 ```
 
 ##
@@ -429,7 +429,7 @@ Se observa que los puntajes parecerían tene una distribución semejante a la no
 Vamos a ver si existe algun otro rasgo relevante de la relación puntaje y precio. Primeramente creamos una nueva variable que las relacione:
 ```{r}
 vinos_ratio <- vinos |> 
-  mutate(ratio = puntos/precio)
+  mutate(ratio = puntos/log(precio))
 ```
 
 Se divide el puntaje por el precio. Con un puntaje promedio de ``r round(puntos_media, 2)`` y un precio promedio de ``r round(precio_media, 2)``, se estima que los ratios por encima de ``r round(puntos_media/precio_media, 2)`` serían deseables.
