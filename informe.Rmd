@@ -371,11 +371,11 @@ q <- vinos |>
   scale_y_log10() +
   geom_jitter() +
   scale_color_gradient(trans = "log", low="blue", high="red") + 
-  labs(x = "Puntos", y = "Precio (US$)", colour = "Precio (US$)") +
-  stat_smooth(method = "lm",
-            formula = y ~ x,
-            geom = "smooth",
-            color="black")
+  labs(x = "Puntos", y = "Precio (US$)", colour = "Precio (US$)")
+  # stat_smooth(method = "lm",
+  #           formula = y ~ x,
+  #           geom = "smooth",
+  #           color="black")
 show(q)
 ```
 
