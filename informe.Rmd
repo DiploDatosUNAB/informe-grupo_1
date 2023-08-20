@@ -1,18 +1,22 @@
 ---
-title: "Informe para Alcoholistas"
+title: "Informe para Alcoholistas V2"
 author: "Alejandro Blasco"
-date: "2023-06-21"
-# output:
-#   html_document:
-#     theme: darkly
-#     highlight: tango
-#     toc: true
+date: "2023-08-05"
 output:
- revealjs::revealjs_presentation:
-   theme: moon
-   highlight: breezedark
-   transition: fade
-   background_transition: fade
+  html_document:
+    theme: darkly
+    highlight: tango
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+      number_sections: true
+# output:
+#  revealjs::revealjs_presentation:
+#    theme: moon
+#    highlight: breezedark
+#    transition: fade
+#    background_transition: fade
    # scrollable: true
    # slideNumber: true
    # mouseWheel: true
@@ -42,7 +46,8 @@ library(kableExtra)
 # Introducción
 
 
-## ¿Qué datos son?
+## Descripción
+¿Qué datos son?
 
 La base posee datos sobre diferentes vinos y sus reseñas. El detalle de los datos se transcribe del diccionario:
 
@@ -59,20 +64,23 @@ La base posee datos sobre diferentes vinos y sus reseñas. El detalle de los dat
 | vina | caracter | Nombre de la viña. |
 | titulo_resena| caracter | Título de la reseña. |
 
-## ¿De dónde provienen?
+## Origen
+¿De dónde provienen?
 
 La fuente de los datos es la revista [Wine Enthusiast](http://www.winemag.com/?s=&drink_type=wine), extraidos por *zackthoutt* y alojados en [Kaggle](https://www.kaggle.com/zynicide/wine-reviews), de donde fueron tomados y luego traducidos.
 
-## ¿Quién los tomó?
+¿Quién los tomó?
 ![mona](https://iili.io/HgxBOjn.jpg){width=600}
 
-## ¿En qué período se tomaron?
+## Fecha
+¿En qué período se tomaron?
 
 El dataset en español es de 2019-06-12 (dato obtenido de la [url](https://raw.githubusercontent.com/cienciadedatos/datos-de-miercoles/master/datos/2019/2019-06-12/vinos.csv) de origen del dataset). 
 
 El original en inglés de Keggle fue actualizado por última vez hace 5 años (2018), pero no se indica la fecha exacta de procedencia de los datos.
 
-# Exploración de los datos
+# Análisis
+Exploración del los datos
 
 ```{r include=FALSE}
 # funcion para calcular moda
@@ -137,7 +145,8 @@ El dataset tiene ``r observaciones`` observaciones y ``r variables`` variables.
 Se consideran las variables `puntos` y `precio` para el análisis, ya que son las únicas numéricas, por lo que permiten mayores análisis que el resto de las variables del dataset, que son categóricas.
 
 
-## ¿Cuál es su valor medio y desvío estándar?
+## Tendencia Central
+¿Cuál es su valor medio y desvío estándar?
 
 *Puntos*
 ```{r echo=FALSE}
@@ -162,8 +171,6 @@ summarise(vinos,
 
 La similitud entre media, mediana y moda permite suponer una distribución, si no normal, al menos simétrica.
 
-## 
-
 *Precio*
 ```{r echo=FALSE}
 summarise(vinos, 
@@ -187,7 +194,8 @@ summarise(vinos,
 
 La diferencia entre moda, mediana y media, confirma esto, permitiendo estimar una distribución asimétrica hacia la derecha.
 
-## ¿Cuál es su rango (valor máximo y valor mínimo)?
+## Rango
+¿Cuál es su rango (valor máximo y valor mínimo)?
 
 *Puntos*
 ```{r echo=FALSE}
@@ -212,7 +220,8 @@ summarise(vinos,
 
 Se confirma que los precios altos tienen gran dispersión y se alejan mucho de la media, lo que ratifica una asimetría hacia la derecha.
 
-## ¿Hay alguna anomalía que sugiera que hay datos incorrectos?
+## Anomalías
+¿Hay alguna anomalía que sugiera que hay datos incorrectos?
 
 No hay evidencias de que existan anomalías en los datos, solo algunos valores llamativos, como la diferencia entre la media de precios y los precios máximos, ya que, aunque el máximo es US\$``r precio_max``, solo existen ``r vinos_caros`` (de un total de ``r tamanio_muestra``) que superen los US\$``r round(precio_caro)`` (promedio de precio + 3 desvíos estándar). 
 
@@ -220,7 +229,6 @@ También llamó la atención la cantidad de cepas o variedades de vino (``r vari
 
 La dispersión de precios puede observarse mejor mediante un gráfico:
 
-##
 ```{r echo=FALSE}
 p <- vinos |>
   filter(precio <= precio_caro) |>
@@ -232,7 +240,8 @@ show(p)
 
 (los precios mayores a ``r round(precio_caro)`` fueron excluidos)
 
-## ¿Cuántas observaciones hay por cada grupo? ¿Cuántos valores faltantes? ¿Hay diferencias?
+## Tamaño
+¿Cuántas observaciones hay por cada grupo? ¿Cuántos valores faltantes? ¿Hay diferencias?
 
 Se contabiliza el porcentaje de valores N/A (vacíos), para cada una de las variables:
 
@@ -272,7 +281,6 @@ Se presentan 3 hipótesis:
 
 Para analizar esto, primero, se realiza un gráfico para ver los promedios de precio x país:
 
-##
 ```{r echo=FALSE}
 vinos |> 
   filter(!is.na(pais)) |> 
@@ -285,8 +293,6 @@ vinos |>
 ```
 
 Se ve una gran dispersión, con precios que van desde menos de US\$10 (Ucrania), hasta más de US\$85 (Suiza).
-
-##
 
 Para verificar que estos promedios sean estadísticamente significativos, se analiza cuantas reseñas hay de cada pais:
 
@@ -303,7 +309,6 @@ vinos |>
 
 Destacan varios paises casi sin reseñas. Gráficamente:
 
-##
 ```{r echo=FALSE}
 vinos |> 
   filter(!is.na(pais)) |> 
@@ -316,7 +321,6 @@ vinos |>
 
 Al existir paises con tan pocas reseñas, conviene filtrarlos o agruparlos:
 
-##
 
 ```{r echo=FALSE}
 vinos |> 
@@ -333,7 +337,6 @@ Otros = paises con pocas reseñas
 
 (<0,1% del tamaño de la muestra) 
 
-##
 **Conclusiones:** Se constata una diferencia significativa entre los precios promedio según el pais de origen del vino, ya sea contabilizando todos o excluyendo los menos representativos. 
 
 Respecto de la cantidad de reseñas, no es posible establecer si es una limitación de la muestra, con mayor acceso o interés en vinos locales (las reseñas de EEUU casi triplican a las del segundo, Francia), si existen menos reseñas por tener menor producción de vino, u otros motivos. 
@@ -345,7 +348,6 @@ Tampoco es posible determinar los motivos de la variación de precio. Puede supo
 
 Primeramente, se elabora un gráfico de dispersión de la relación puntaje y precio, eliminando vinos de precios muy altos (> 1000), ya que limitan la utilidad el gráfico:
 
-##
 Este gráfico brinda poca información. Parecería que existen vinos de precio bajo en casi todos los puntajes, y el precio mínimo parece elevarse ligeramente a partir del puntaje 95.
 
 ```{r linear, echo=FALSE}
@@ -360,7 +362,6 @@ p <- vinos |>
 show(p)
 ```
 
-##
 Si cambiamos la escala:
 
 ```{r log, echo=FALSE}
@@ -381,7 +382,6 @@ show(q)
 
 Una escala logarítmica permite apreciar mucho mejor la relación existente entre precio y puntaje.
 
-##
 Vamos a comprobar el precio promedio para cada puntaje: 
  
 ```{r echo=FALSE}
@@ -399,7 +399,6 @@ show(p)
 
 Con esto se aprecia que el precio promedio de los vino se incrementa, pero el crecimiento sigue una tendencia más exponencial que lineal.
 
-##
 También podemos observar como se distribuyen los puntajes:
 
 ```{r echo=FALSE}
@@ -412,7 +411,6 @@ vinos |>
   kable_styling(full_width = FALSE, font_size = 18)
 ```
 
-##
 ```{r echo=FALSE}
 vinos |>
   filter(!is.na(puntos)) |> 
@@ -455,7 +453,6 @@ vinos_ratio |>
   geom_histogram(colour = "violetred4", fill = "violetred4",alpha = 0.3, binwidth = 0.35)
 ```
 
-##
 Por último, para relacionar con la hipótesis 1, comparamos puntaje promedio conforme paises:
 
 ```{r echo=FALSE}
@@ -473,15 +470,12 @@ vinos |>
 
 Se ve, que al contrario del precio promedio, el puntaje promedio no parecería tiene mucha variabilidad.
 
-##
-
 *Conclusiones:* Entendemos que existe una correlación entre el puntaje y el precio, aunque desconocemos si esto puede deberse a un sesgo de quien evalúa (que podría tender a asignar puntajes altos a vinos caros) o a una efectiva correlación entre calidad y precio, ya que hay muchos vinos de bajo precio con alto puntaje.
 
 
 ## Hipótesis 3
 >Existirían variedades que podrían tener un precio promedio significativamente mayor, pero no así su puntaje.
 
-##
 ```{r echo=FALSE}
 vinos |> 
   filter(!is.na(variedad)) |> 
@@ -497,7 +491,6 @@ vinos |>
 
 Por la cantidad de variedades encontradas (``r variedades_len``), y la escasa cantidad de reseñas de muchas, se agrupan en "Otras" las variedades sin una cantidad significativa de reseñas.
 
-##
 ```{r echo=FALSE}
 vinos |> 
   filter(!is.na(variedad)) |> 
@@ -515,9 +508,7 @@ vinos |>
 
 Para este gráfico, se opusieron puntaje a la izquierda (escala de 80 a 100) y precio a la derecha.
 
-##
-
-*Conclusiones:* Se estima que el gráfico da cuenta de que  existe una diferencia del precio promedio de las variedades más reseñadas, pero que este precio no correlaciona (al menos a simple vista) con el puntaje promedio. Lo anterior podría deberse a varias causas. Una hipótesis es que las variedades o cepas podrían tener un precio promedio distinto en base a los costos de su producción, la dificultad específica de su cultivo,  tiempo de procesamiento, o su exclusividad, entre otros.
+### *Conclusiones:* Se estima que el gráfico da cuenta de que  existe una diferencia del precio promedio de las variedades más reseñadas, pero que este precio no correlaciona (al menos a simple vista) con el puntaje promedio. Lo anterior podría deberse a varias causas. Una hipótesis es que las variedades o cepas podrían tener un precio promedio distinto en base a los costos de su producción, la dificultad específica de su cultivo,  tiempo de procesamiento, o su exclusividad, entre otros.
 
 
 
