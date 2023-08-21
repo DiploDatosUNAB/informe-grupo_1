@@ -337,7 +337,9 @@ Otros = paises con pocas reseñas
 
 (<0,1% del tamaño de la muestra) 
 
-**Conclusiones:** Se constata una diferencia significativa entre los precios promedio según el pais de origen del vino, ya sea contabilizando todos o excluyendo los menos representativos. 
+###*Conclusiones:* 
+
+Se constata una diferencia significativa entre los precios promedio según el pais de origen del vino, ya sea contabilizando todos o excluyendo los menos representativos. 
 
 Respecto de la cantidad de reseñas, no es posible establecer si es una limitación de la muestra, con mayor acceso o interés en vinos locales (las reseñas de EEUU casi triplican a las del segundo, Francia), si existen menos reseñas por tener menor producción de vino, u otros motivos. 
 
@@ -470,7 +472,9 @@ vinos |>
 
 Se ve, que al contrario del precio promedio, el puntaje promedio no parecería tiene mucha variabilidad.
 
-*Conclusiones:* Entendemos que existe una correlación entre el puntaje y el precio, aunque desconocemos si esto puede deberse a un sesgo de quien evalúa (que podría tender a asignar puntajes altos a vinos caros) o a una efectiva correlación entre calidad y precio, ya que hay muchos vinos de bajo precio con alto puntaje.
+###*Conclusiones:* 
+
+Entendemos que existe una correlación entre el puntaje y el precio, aunque desconocemos si esto puede deberse a un sesgo de quien evalúa (que podría tender a asignar puntajes altos a vinos caros) o a una efectiva correlación entre calidad y precio, ya que hay muchos vinos de bajo precio con alto puntaje.
 
 
 ## Hipótesis 3
@@ -508,7 +512,9 @@ vinos |>
 
 Para este gráfico, se opusieron puntaje a la izquierda (escala de 80 a 100) y precio a la derecha.
 
-### *Conclusiones:* Se estima que el gráfico da cuenta de que  existe una diferencia del precio promedio de las variedades más reseñadas, pero que este precio no correlaciona (al menos a simple vista) con el puntaje promedio. Lo anterior podría deberse a varias causas. Una hipótesis es que las variedades o cepas podrían tener un precio promedio distinto en base a los costos de su producción, la dificultad específica de su cultivo,  tiempo de procesamiento, o su exclusividad, entre otros.
+### *Conclusiones:*
+
+Se estima que el gráfico da cuenta de que  existe una diferencia del precio promedio de las variedades más reseñadas, pero que este precio no correlaciona (al menos a simple vista) con el puntaje promedio. Lo anterior podría deberse a varias causas. Una hipótesis es que las variedades o cepas podrían tener un precio promedio distinto en base a los costos de su producción, la dificultad específica de su cultivo,  tiempo de procesamiento, o su exclusividad, entre otros.
 
 
 
