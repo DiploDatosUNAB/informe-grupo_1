@@ -1,26 +1,76 @@
 ---
-title: "Sample Document"
-output:
+title: "Documento con Tabs y Espaciado"
+output: 
   html_document:
     toc: true
-    theme: united
+    toc_float:
+      collapsed: false
+    code_folding: hide
 ---
 
-Header 1
----------------
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-    
-## Header 2
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-    
-```{r}
-summary(cars)
-```
+# Título Principal
 
-You can also embed plots, for example:
+## <a name="seccion1"></a>Sección 1 {.tabset .tabset-fade .tabset-pills}
 
-```{r, echo=FALSE}
-plot(cars)
-```
-### Header 3
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+### Subsección 1.1
+
+Contenido de la subsección 1.1.
+
+### Subsección 1.2
+
+Contenido de la subsección 1.2.
+
+## <a name="seccion2"></a>Sección 2 {.tabset .tabset-fade .tabset-pills}
+
+### Subsección 2.1
+
+Contenido de la subsección 2.1.
+
+### Subsección 2.2
+
+Contenido de la subsección 2.2.
+
+<style>
+/* Agrega espacio entre las secciones */
+h1, h2 {
+  margin-top: 40px; /* Ajusta el valor según tus preferencias */
+}
+</style>
+
+
+<!-- # --- -->
+<!-- # title: Change the chunk style -->
+<!-- # output: html_document -->
+<!-- # --- -->
+<!-- #  -->
+<!-- # When you subset a data frame, it does not necessarily return -->
+<!-- # a data frame. For example, if you subset two columns, you get -->
+<!-- # a data frame, but when you try to subset one column, you get -->
+<!-- # a vector: -->
+<!-- #  -->
+<!-- # ```{r class.source="bg-danger", class.output="bg-warning"} -->
+<!-- # mtcars[1:5, "mpg"] -->
+<!-- # ``` -->
+<!-- #  -->
+<!-- # To make sure that we always get a data frame, we have to use -->
+<!-- # the argument `drop = FALSE`. Now we use the chunk option -->
+<!-- # `class.source = "bg-success"`. -->
+<!-- #  -->
+<!-- # ```{r df-drop-ok, class.source="bg-success"} -->
+<!-- # mtcars[1:5, "mpg", drop = FALSE] -->
+<!-- # ``` -->
+
+
+
+
+<!-- <style> -->
+<!-- h1, h2, h3 { -->
+<!--   text-align: center; -->
+<!-- } -->
+<!-- <style/> -->
+
+<!-- ```{css, echo=FALSE} -->
+<!-- p { -->
+<!--   font-size: 32px; -->
+<!-- } -->
+<!-- ``` -->
