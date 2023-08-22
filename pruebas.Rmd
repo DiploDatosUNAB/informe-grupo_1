@@ -1,76 +1,46 @@
----
-title: "Documento con Tabs y Espaciado"
-output: 
-  html_document:
-    toc: true
-    toc_float:
-      collapsed: false
-    code_folding: hide
----
-
-# Título Principal
-
-## <a name="seccion1"></a>Sección 1 {.tabset .tabset-fade .tabset-pills}
-
-### Subsección 1.1
-
-Contenido de la subsección 1.1.
-
-### Subsección 1.2
-
-Contenido de la subsección 1.2.
-
-## <a name="seccion2"></a>Sección 2 {.tabset .tabset-fade .tabset-pills}
-
-### Subsección 2.1
-
-Contenido de la subsección 2.1.
-
-### Subsección 2.2
-
-Contenido de la subsección 2.2.
-
-<style>
-/* Agrega espacio entre las secciones */
-h1, h2 {
-  margin-top: 40px; /* Ajusta el valor según tus preferencias */
-}
-</style>
-
-
-<!-- # --- -->
-<!-- # title: Change the chunk style -->
-<!-- # output: html_document -->
-<!-- # --- -->
-<!-- #  -->
-<!-- # When you subset a data frame, it does not necessarily return -->
-<!-- # a data frame. For example, if you subset two columns, you get -->
-<!-- # a data frame, but when you try to subset one column, you get -->
-<!-- # a vector: -->
-<!-- #  -->
-<!-- # ```{r class.source="bg-danger", class.output="bg-warning"} -->
-<!-- # mtcars[1:5, "mpg"] -->
-<!-- # ``` -->
-<!-- #  -->
-<!-- # To make sure that we always get a data frame, we have to use -->
-<!-- # the argument `drop = FALSE`. Now we use the chunk option -->
-<!-- # `class.source = "bg-success"`. -->
-<!-- #  -->
-<!-- # ```{r df-drop-ok, class.source="bg-success"} -->
-<!-- # mtcars[1:5, "mpg", drop = FALSE] -->
-<!-- # ``` -->
+```{r}
+library(gt)
+library(gtExtras)
+ out_df <- tibble::tribble(
+   ~rank,            ~player, ~jersey, ~team,  ~g, ~pass, ~pr_snaps, ~rsh_pct, ~prp, ~prsh,
+   1L, "Trey Hendrickson",    "91", "CIN", 16,  495,      454,     91.7, 10.8,  83.9,
+   2L,        "T.J. Watt",    "90", "PIT", 15,  461,      413,     89.6, 10.7,  90.6,
+   3L,      "Rashan Gary",    "52",  "GB", 16,  471,      463,     98.3, 10.4,  88.9,
+   4L,      "Maxx Crosby",    "98",  "LV", 17,  599,      597,     99.7,   10,  91.8,
+   5L,    "Matthew Judon",    "09",  "NE", 17,  510,      420,     82.4,  9.7,  73.2,
+   6L,    "Myles Garrett",    "95", "CLV", 17,  554,      543,       98,  9.5,  92.7,
+   7L,  "Shaquil Barrett",    "58",  "TB", 15,  563,      485,     86.1,  9.3,  81.5,
+   8L,        "Nick Bosa",    "97",  "SF", 17,  529,      525,     99.2,  9.2,  89.8,
+   9L, "Marcus Davenport",    "92",  "NO", 11,  302,      297,     98.3,  9.1,    82,
+   10L,       "Joey Bosa",    "97", "LAC", 16,  495,      468,     94.5,  8.9,  90.3,
+   11L,    "Robert Quinn",    "94", "CHI", 16,  445,      402,     90.3,  8.6,  79.7,
+   12L,   "Randy Gregory",    "94", "DAL", 12,  315,      308,     97.8,  8.6,  84.4
+ )
+ out_df %>%
+   gt() %>%
+     tab_spanner(columns = pass:rsh_pct, label = "snaps") %>%
+     tab_spanner(columns = prp:prsh, label = "grade") %>%
+     gt_theme_pff(
+       spanners = c("snaps", "grade"),
+       divider = jersey, rank_col = rank
+     ) %>%
+     gt_color_box(
+       columns = prsh, domain = c(0, 95), width = 50, accuracy = 0.1,
+       palette = "pff"
+     ) %>%
+     cols_label(jersey = "#", g = "#G", rsh_pct = "RSH%") %>%
+     tab_header(
+       title = "Pass Rush Grades",
+       subtitle = "Grades and pass rush stats"
+     ) %>%
+     gt_highlight_cols(columns = prp, fill = "#e4e8ec") %>%
+     tab_style(
+       style = list(
+         cell_borders("bottom", "white"),
+         cell_fill(color = "#393c40")
+       ),
+       locations = cells_column_labels(prp)
+     )
+```
 
 
-
-
-<!-- <style> -->
-<!-- h1, h2, h3 { -->
-<!--   text-align: center; -->
-<!-- } -->
-<!-- <style/> -->
-
-<!-- ```{css, echo=FALSE} -->
-<!-- p { -->
-<!--   font-size: 32px; -->
-<!-- } -->
-<!-- ``` -->

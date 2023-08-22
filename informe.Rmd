@@ -48,10 +48,14 @@ diccionario <- data.frame(
                   "Lugar de origen", "Información adicional sobre zona de origen", "Más información adicional", 
                   "Variedad (ie, Pinot Noir)", "Nombre de la viña", "Título de la reseña")
 )
-dicc_gt <- diccionario |> 
-  gt() |> 
-  gt_theme_dark()
-dicc_gt 
+dicc_pie = "Fuente: 'Datos de miércoles', proyecto semanal de datos organizado por la comunidad de R (https://github.com/cienciadedatos/datos-de-miercoles/tree/master/datos/2019/2019-06-12)"
+diccionario |>
+  gt(rowname_col = "Variable") |>
+  tab_options(table.width = "75%") |> 
+  tab_stubhead(label = "Variable") |> 
+  gt_theme_dark() |> 
+  tab_source_note(dicc_pie)
+ 
 ```
 
 <!-- |**Variable**|**Clase**|**Descripción**| -->
@@ -117,9 +121,15 @@ vinos  <-  read_csv('datos/vinos.csv', show_col_types = FALSE)
 
 Luego se presenta una muestra:
 ```{r muestra, echo=FALSE}
-sample_n(vinos,4) |> 
+muestra <- sample_n(vinos, 4) |> 
   gt() |> 
-  gt_theme_dark()
+  gt_theme_pff() |>
+  tab_header(
+    title = "Reseñas de Vinos",
+    subtitle = "muestra de 4 registros") |> 
+    tab_source_note(
+    source_note = "Source: The World Almanac and Book of Facts, 1975, page 406.")
+muestra
 ```
 
 ```{r variables, include=FALSE}
