@@ -55,7 +55,6 @@ diccionario |>
   tab_stubhead(label = "Variable") |> 
   gt_theme_dark() |> 
   tab_source_note(dicc_pie)
- 
 ```
 
 <!-- |**Variable**|**Clase**|**Descripción**| -->
@@ -121,15 +120,17 @@ vinos  <-  read_csv('datos/vinos.csv', show_col_types = FALSE)
 
 Luego se presenta una muestra:
 ```{r muestra, echo=FALSE}
-muestra <- sample_n(vinos, 4) |> 
+sample_n(vinos, 4) |>
   gt() |> 
+  tab_options(table.background.color = "#25303f",
+              heading.background.color = "#003258") |> 
   gt_theme_pff() |>
+  gt_highlight_cols(columns = c(puntos,precio), fill = "#e4e8ec") %>%
   tab_header(
     title = "Reseñas de Vinos",
     subtitle = "muestra de 4 registros") |> 
-    tab_source_note(
-    source_note = "Source: The World Almanac and Book of Facts, 1975, page 406.")
-muestra
+  tab_source_note(
+    source_note = "Fuente: Revista Wine Enthusiast - www.wineenthusiast.com")
 ```
 
 ```{r variables, include=FALSE}
@@ -548,6 +549,9 @@ Para este gráfico, se opusieron puntaje a la izquierda (escala de 80 a 100) y p
 ## https://github.com/jrnold/ggthemes
 ## https://monashdatafluency.github.io/r-rep-res/yaml-header.html
 ## https://cran.r-project.org/web/packages/ymlthis/vignettes/yaml-fieldguide.html
+# https://imagecolorpicker.com/color-code/25303f
+# https://gt.rstudio.com/articles/intro-creating-gt-tables.html
+# https://bbc.github.io/rcookbook/
 ```
 
 
