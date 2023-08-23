@@ -1,46 +1,34 @@
-```{r}
-library(gt)
-library(gtExtras)
- out_df <- tibble::tribble(
-   ~rank,            ~player, ~jersey, ~team,  ~g, ~pass, ~pr_snaps, ~rsh_pct, ~prp, ~prsh,
-   1L, "Trey Hendrickson",    "91", "CIN", 16,  495,      454,     91.7, 10.8,  83.9,
-   2L,        "T.J. Watt",    "90", "PIT", 15,  461,      413,     89.6, 10.7,  90.6,
-   3L,      "Rashan Gary",    "52",  "GB", 16,  471,      463,     98.3, 10.4,  88.9,
-   4L,      "Maxx Crosby",    "98",  "LV", 17,  599,      597,     99.7,   10,  91.8,
-   5L,    "Matthew Judon",    "09",  "NE", 17,  510,      420,     82.4,  9.7,  73.2,
-   6L,    "Myles Garrett",    "95", "CLV", 17,  554,      543,       98,  9.5,  92.7,
-   7L,  "Shaquil Barrett",    "58",  "TB", 15,  563,      485,     86.1,  9.3,  81.5,
-   8L,        "Nick Bosa",    "97",  "SF", 17,  529,      525,     99.2,  9.2,  89.8,
-   9L, "Marcus Davenport",    "92",  "NO", 11,  302,      297,     98.3,  9.1,    82,
-   10L,       "Joey Bosa",    "97", "LAC", 16,  495,      468,     94.5,  8.9,  90.3,
-   11L,    "Robert Quinn",    "94", "CHI", 16,  445,      402,     90.3,  8.6,  79.7,
-   12L,   "Randy Gregory",    "94", "DAL", 12,  315,      308,     97.8,  8.6,  84.4
- )
- out_df %>%
-   gt() %>%
-     tab_spanner(columns = pass:rsh_pct, label = "snaps") %>%
-     tab_spanner(columns = prp:prsh, label = "grade") %>%
-     gt_theme_pff(
-       spanners = c("snaps", "grade"),
-       divider = jersey, rank_col = rank
-     ) %>%
-     gt_color_box(
-       columns = prsh, domain = c(0, 95), width = 50, accuracy = 0.1,
-       palette = "pff"
-     ) %>%
-     cols_label(jersey = "#", g = "#G", rsh_pct = "RSH%") %>%
-     tab_header(
-       title = "Pass Rush Grades",
-       subtitle = "Grades and pass rush stats"
-     ) %>%
-     gt_highlight_cols(columns = prp, fill = "#e4e8ec") %>%
-     tab_style(
-       style = list(
-         cell_borders("bottom", "white"),
-         cell_fill(color = "#393c40")
-       ),
-       locations = cells_column_labels(prp)
-     )
-```
+---
+title: "Mi Documento"
+output: html_document
+---
+
+```{r, fig.width=8, fig.height=6}
+library(ggplot2)
+
+# Crear un ejemplo de dataframe
+df <- data.frame(
+  categorias = c("A", "B", "C", "D"),
+  valores = c(10, 20, 15, 25)
+)
+
+# Crear el gráfico con tamaño personalizado
+p <- ggplot(df, aes(x = categorias, y = valores)) +
+  geom_bar(stat = "identity") +
+  labs(x = "CategorIas", y = "Valores") +
+  theme_minimal()
+
+# Mostrar el gráfico
+print(p)
+arduino
+Copy code
+
+En este ejemplo, hemos utilizado las opciones de chunk `fig.width` y `fig.height` para ajustar el ancho y el alto del gráfico dentro del documento Markdown HTML. Puedes ajustar los valores de `fig.width` y `fig.height` según tus necesidades.
+
+Lamento la confusión anterior y espero que esta respuesta te haya proporcionado la solución que buscabas.
+
+
+
+
 
 

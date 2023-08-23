@@ -11,10 +11,16 @@ output:
       collapsed: false
       smooth_scroll: false
       number_sections: true
-    code_folding: show
+    code_folding: hide
     ## includes:
     ##   before_body: before_body.html
 ---
+
+<style>
+  img {
+    border: none !important;
+  }
+</style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -22,9 +28,12 @@ library(dplyr)
 library(forcats)
 library(ggplot2)
 library(gt)
+library(geomtextpath)
 library(gtExtras)
-library(kableExtra) ## borrar
+# library(kableExtra) ## borrar
 library(knitr)
+library(pals)
+library(Polychrome)
 library(RColorBrewer)
 library(readr)
 library(tidyr)
@@ -40,7 +49,7 @@ library(tibble)
 
 La base posee datos sobre diferentes vinos y sus reseñas. El detalle de los datos se transcribe del diccionario:
 
-```{r diccionario, echo=FALSE}
+```{r diccionario}
 diccionario <- data.frame(
   Variable = c("pais", "nombre", "puntos", "precio", "provincia", "zona_1", "zona_2", "variedad", "vina", "titulo_resena"),
   Clase = c("caracter", "caracter", "entero", "entero", "caracter", "caracter", "caracter", "caracter", "caracter", "caracter"),
@@ -122,16 +131,17 @@ vinos  <-  read_csv('datos/vinos.csv', show_col_types = FALSE)
 ```
 
 Luego se presenta una muestra:
-```{r muestra, echo=FALSE}
-sample_n(vinos, 4) |>
+```{r muestra}
+sample_n(vinos, 5) |>
   gt() |> 
   # tab_options(table.background.color = "#25303f",
   #             heading.background.color = "#003258") |> 
   gt_theme_pff() |>
   # gt_highlight_cols(columns = c(puntos,precio), fill = "#e4e8ec")  |> 
-  tab_header(
-    title = "Reseñas de Vinos",
-    subtitle = "muestra de 4 registros") |> 
+  tab_header(title = "Reseñas de Vinos") |>
+   tab_footnote(
+    footnote = "Muestra aleatoria de 5 registros.",
+    locations = cells_title("title")) |> 
   tab_source_note(
     source_note = html("Fuente: Revista <a href=\"www.wineenthusiast.com\">Wine Enthusiast</a>."))
 ```
@@ -173,12 +183,6 @@ Se consideran las variables `puntos` y `precio` para el análisis, ya que son la
 ¿Cuál es su valor medio y desvío estándar?
 
 ```{r puntos-mtc, echo=FALSE}
-# summarise(vinos, 
-#           puntos_media = mean(puntos, na.rm = TRUE),
-#           puntos_ds = sd(puntos, na.rm = TRUE)) |>
-#   kable(col.names = c("Media", "Desvío Estándar")) |> 
-#   kable_styling(full_width = FALSE)
-
 pts_mtc <- summarise(vinos, 
                      media = mean(puntos, na.rm = TRUE),
                      mediana = median(puntos, na.rm = TRUE),
@@ -201,7 +205,8 @@ mtc <- rbind(pts_mtc, pre_mtc) |>
              mediana = "Mediana",
              moda = "Moda", 
              ds = "Desvío") |>
-    opt_stylize(style = 1, color = 'blue')
+  fmt_number(columns = c(2,5), decimals = 2) |> 
+  opt_stylize(style = 1, color = 'blue')
 mtc
   
 ```
@@ -223,7 +228,7 @@ La diferencia entre moda, mediana y media, confirma esto, permitiendo estimar un
 ### Rango
 ¿Cuál es su rango (valor máximo y valor mínimo)?
 
-```{r rango, echo=FALSE}
+```{r rango}
 pts_rng <- summarise(vinos, 
                      min = min(puntos, na.rm = TRUE),
                      max = max(puntos, na.rm = TRUE))
@@ -240,7 +245,7 @@ rng <- rbind(pts_rng, pre_rng) |>
     title = "Rango") |>
   cols_label(min = "Mínimo",
              max = "Máximo") |>
-    opt_stylize(style = 2, color = 'blue')
+  opt_stylize(style = 2, color = 'blue')
 rng
 ```
 
@@ -263,14 +268,46 @@ También llamó la atención la cantidad de cepas o variedades de vino (``r vari
 
 La dispersión de precios puede observarse mejor mediante un gráfico:
 
-```{r precio-dispersion, echo=FALSE}
-#| fig.alt: "histograma de dispersión d precios"
+```{r tema}
+theme_set(theme_dark() + 
+            theme(plot.background = element_rect(fill = "#555555"),
+                  axis.text = element_text(color = "#222222"),
+                  legend.background = element_rect(fill = "#888888")
+                  ))
+```
+
+
+```{r precio-dispersion, out.width = '120%'}
+#| fig.alt: "Histograma de dispersión de precios. El eje X indica el precio en dólares, y el Y la cantidad de reseñas; posee una cúspide de 12828 reseñas para los vinos de precio cercano a 15 dólares, con una marcada asimetría hacia la derecha, por lo que se filtraron valores mayores a 160 dólares."
 p <- vinos |>
   filter(precio <= precio_caro) |>
-  ggplot(aes(x=precio, fill = cut(precio, 100))) + 
-  geom_histogram(binwidth=3, show.legend = FALSE) + 
-  labs(x = "Precio (US$)", y = "Cantidad de Reseñas") +
-  theme_gray()
+  ggplot() + 
+  geom_histogram(binwidth = 3, 
+                 show.legend = FALSE, 
+                 aes(x = precio,fill = cut(precio, 100))) +
+  scale_fill_viridis_d(option = "A", direction = -1) +
+  labs(title = "Histograma de Precios",
+       x = "Precio (US$)", 
+       y = "Cantidad de Reseñas")
+
+#ver https://community.rstudio.com/t/geom-histogram-max-bin-height/10026
+#ver https://github.com/tidyverse/ggplot2/issues/5004
+cuspide <- select(layer_data(p)[which.max(layer_data(p)$y), ],x,y)
+
+# Añade la marca y la nota al pie
+p <- p +
+  geom_text(data = cuspide,
+            aes(x = x, y = y,
+                label = paste0("Cúspide\nUS$", x, "\n", y," reseñas")),
+            nudge_x = 2, nudge_y = -500, color = "#333333", hjust = 0) + 
+  geom_point(data = cuspide, 
+             aes(x = x, y = y),
+             shape = 20, size = 3, fill = NA, color = "#333333") +
+  annotate("text", x = Inf, y = Inf, hjust = 1, vjust = 1, 
+           label = paste0("Las reseñas de valores mayores a ",
+                         paste0("$", round(precio_caro,2)), " fueron omitidas."),
+           color = "#333333")  # Nota en la parte superior del área del gráfico
+
 show(p)
 ```
 
@@ -283,7 +320,7 @@ show(p)
 
 Se contabiliza el porcentaje de valores N/A (vacíos), para cada una de las variables:
 
-```{r}
+```{r proporcion-na}
 proporcion <- tibble::rownames_to_column(data.frame(colSums(is.na(vinos))/nrow(vinos)),
                                                   "variable")
 colnames(proporcion)[2] <- "Cantidad de NA"
@@ -292,7 +329,8 @@ gt() |>
   gt_theme_pff() |>
   fmt_percent(columns = 2, decimals = 2)
 ```
-Pueden encontrarse bastantes valores faltantes, pero únicamente en las columnas de nombre (``r prop_no_encontrados[2]``%), region_1 (``r prop_no_encontrados[6]``%) y region_2 (``r prop_no_encontrados[6]``%).
+
+Pueden encontrarse bastantes valores faltantes, pero únicamente en las columnas de nombre (``r round(proporcion[2,2]*100,2)``%), region_1 (``r round(proporcion[6,2]*100,2)``%) y region_2 (``r round(proporcion[7,2]*100,2)``%).
 
 ---
 
@@ -304,15 +342,6 @@ Se presentan 3 hipótesis:
 2. Habría una incremento en el precio promedio del vino conforme su puntaje.
 3. Existirían variedades que podrían tener un precio promedio significativamente mayor, pero no así su puntaje.
 
-```{r include=FALSE}
-## TP 2
-## 1. Escribir la pregunta. 
-## 2. Mostrar uno o varios gráficos o tablas relevantes
-## 3. Escribir un texto interpretando esos resultados y llegar a una conclusión.
-## Y repetir para cada pregunta. 
-## Si durante el análisis le surgen otras preguntas, son bienvenides de responderlas también. Muchas veces aparecen cosas que nos sorprenden y es necesario indagar más.
-```
-
 ---
 
 ### *Precio x Pais*
@@ -321,55 +350,88 @@ Se presentan 3 hipótesis:
 
 Para analizar esto, primero, se realiza un gráfico para ver los promedios de precio x país:
 
-```{r echo=FALSE}
+```{r precio_x_pais, fig.asp = 1.20 }
+# https://sebastiansauer.github.io/figure_sizing_knitr/
+
+paleta_pais <- createPalette(43,  c("#ff0000", "#00ff00", "#0000ff")) # paleta personalizada
+
 vinos |> 
   filter(!is.na(pais)) |> 
   group_by(pais) |> 
   summarise(precio_promedio = mean(precio, na.rm = TRUE)) |>
-  filter(!is.na(precio_promedio)) |> 
+  filter(!is.na(precio_promedio)) |>
   ggplot(aes(precio_promedio, reorder(pais, precio_promedio))) +
-  geom_col(width = 0.5, color='steelblue',fill='steelblue', alpha = 0.6) +
-  labs(x = "Precio", y = "Pais")
+  geom_col(width = 0.5, alpha = 0.6, show.legend = FALSE,
+           aes(fill = reorder(pais, precio_promedio),
+               color=reorder(pais, precio_promedio))) +
+  scale_fill_viridis_d(aesthetics = c("colour", "fill")) +
+  scale_x_continuous(expand = c(0.01,0)) + 
+  # scale_colour_manual(values = paleta_pais,aesthetics = c("colour", "fill")) + #no logré que funcione
+  labs(title = "Precio promedio de los vinos por pais",
+       subtitle = "Listado completo",
+       x = "Precio", y = "Pais")
 ```
+
 
 Se ve una gran dispersión, con precios que van desde menos de US\$10 (Ucrania), hasta más de US\$85 (Suiza).
 
 Para verificar que estos promedios sean estadísticamente significativos, se analiza cuantas reseñas hay de cada pais:
 
-```{r echo=FALSE}
+```{r menos-resenias}
 vinos |> 
   filter(!is.na(pais)) |> 
   group_by(pais) |> 
   summarise(resenias = n()) |>
   arrange(resenias) |>
   head(10) |> 
-  kable(col.names = c("País", "Reseñas")) |>
-  kable_styling(full_width = FALSE)
+  gt() |> 
+  tab_header(title = "Paises con menos reseñas") |>
+  cols_label(pais = "País", resenias = "Reseñas") |> 
+  gt_theme_dark()
 ```
 
 Destacan varios paises casi sin reseñas. Gráficamente:
 
-```{r echo=FALSE}
+```{r resenias_x_pais, fig.asp = 1.20}
 vinos |> 
   filter(!is.na(pais)) |> 
   group_by(pais) |> 
   summarise(resenias = n()) |>
   ggplot(aes(resenias, reorder(pais, resenias))) +
-  geom_col(width = 0.5, color='orangered',fill='orangered', alpha = 0.6) +
-  labs(x = "Reseñas", y = "Pais")
+  geom_col(width = 0.5, show.legend = FALSE, 
+           aes(color=reorder(pais, resenias),
+           fill=reorder(pais, resenias), 
+           alpha = 0.6)) +
+  scale_fill_viridis_d(option = "A", 
+                       direction = 1, 
+                       aesthetics = c("colour", "fill")) +
+  scale_x_continuous(expand = c(.01,0)) + 
+  labs(title = "Cantidad de Reseñas por pais",
+       x = "Reseñas",
+       y = "Pais")
 ```
 
 Al existir paises con tan pocas reseñas, conviene filtrarlos o agruparlos:
 
-```{r echo=FALSE}
+```{r precio_pais_grupo}
 vinos |> 
   filter(!is.na(pais)) |> 
   group_by(pais = fct_lump_prop(pais, 0.001, other_level = "Otros")) |> 
   summarise(precio_promedio = mean(precio, na.rm = TRUE), resenias = n()) |>
   filter(!is.na(precio_promedio)) |> 
-  ggplot(aes(precio_promedio, reorder(pais, precio_promedio))) +
-  geom_col(width = 0.5, color='yellowgreen',fill='yellowgreen', alpha = 0.6) +
-  labs(x = "Precio", y = "Pais")
+  ggplot(aes(precio_promedio, 
+             reorder(pais, precio_promedio))) +
+  geom_col(width = 0.5, show.legend = FALSE,
+           aes(color=reorder(pais, precio_promedio),
+               fill=reorder(pais, precio_promedio),
+               alpha = 0.6)) +
+  scale_fill_viridis_d(option = "F", 
+                       direction = 1, 
+                       aesthetics = c("colour", "fill")) +
+  scale_x_continuous(expand = c(0.01,0)) + 
+    labs(title = "Precio promedio de los vinos por pais",
+       subtitle = "Versión resumida",
+       x = "Precio", y = "Pais")
 ```
 
 Otros = paises con pocas reseñas
@@ -391,33 +453,42 @@ Primeramente, se elabora un gráfico de dispersión de la relación puntaje y pr
 
 Este gráfico brinda poca información. Parecería que existen vinos de precio bajo en casi todos los puntajes, y el precio mínimo parece elevarse ligeramente a partir del puntaje 95.
 
-```{r linear, eval=FALSE, include=FALSE}
+```{r linear}
 p <- vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |> 
   filter(precio < 1000) |>
   ggplot(aes(x=puntos, y=precio, color=precio)) +
-  geom_jitter() +
-  scale_color_gradient(low="blue", high="red") + 
-  labs(x = "Puntos", y = "Precio (US$)", colour = "Precio")
+  geom_jitter(show.legend = FALSE) +
+  # scale_color_gradientn(colors = brewer.pal(5, "YlOrBr")) +
+  scale_color_viridis_c(option = "F", direction = 1) +
+  # scale_color_gradient(low="blue", high="red") + 
+  labs(title = "Relación precio-puntaje",
+       subtitle = "escala lineal",
+       x = "Puntos", y = "Precio (US$)", colour = "Precio")
 show(p)
 ```
 
 Si cambiamos la escala:
 
-```{r log, eval=FALSE, include=FALSE}
+```{r log}
 q <- vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |> 
-  ggplot(aes(x=puntos, y=precio, colour=precio)) +
+  ggplot(aes(x = puntos, y = precio)) +
   scale_y_log10() +
-  geom_jitter() +
-  scale_color_gradient(trans = "log", low="blue", high="red") + 
-  labs(x = "Puntos", y = "Precio (US$)", colour = "Precio (US$)")
-  ## stat_smooth(method = "lm",
-  ##           formula = y ~ x,
-  ##           geom = "smooth",
-  ##           color="black")
+  geom_jitter(aes(colour = precio), show.legend = FALSE) +  # Mover la estética aquí
+  scale_color_viridis_c(option = "F", direction = 1, trans = "log") +
+  labs(title = "Relación precio-puntaje",
+       subtitle = "escala logarítmica",
+       x = "Puntos", y = "Precio (US$)") +
+  geom_labelsmooth(method = "lm",
+                   label = "A mayor puntaje, mayor precio", alpha = 0.5,
+                   arrow = arrow())
+    # stat_smooth(method = "lm",
+    #         formula = y ~ x,
+    #         geom = "smooth",
+    #         color="black")
 show(q)
 ```
 
@@ -425,7 +496,7 @@ Una escala logarítmica permite apreciar mucho mejor la relación existente entr
 
 Vamos a comprobar el precio promedio para cada puntaje: 
  
-```{r echo=FALSE}
+```{r p_prom_vs_punto}
 p <- vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |>
@@ -434,7 +505,8 @@ p <- vinos |>
   ggplot(aes(x=puntos, y=precio_promedio, fill=precio_promedio)) + 
   geom_col() +
   scale_color_binned(trans = "log") + 
-  labs(x = "Puntos", y = "Precio (US$)", fill = "Precio (US$)")
+  labs(title = "Precio Promedio vs Puntaje",
+       x = "Puntos", y = "Precio (US$)", fill = "Precio (US$)")
 show(p)
 ```
 
@@ -442,17 +514,20 @@ Con esto se aprecia que el precio promedio de los vino se incrementa, pero el cr
 
 También podemos observar como se distribuyen los puntajes:
 
-```{r echo=FALSE}
+```{r tabla_pre_pun_res}
 vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |>
   group_by(puntos) |> 
   summarise(precio_promedio = mean(precio, na.rm = TRUE), resenias = n()) |> 
-  kable(col.names = c("Puntos", "Precio Promedio", "Reseñas")) |>
-  kable_styling(full_width = FALSE, font_size = 18)
+  gt() |> 
+  tab_header(title = "Relaciones", subtitle = "Puntos vs Precio Promedio vs Reseñas") |> 
+  cols_label(puntos = "Puntos", precio_promedio = "Precio Promedio", resenias = "Reseñas") |>
+  fmt_number(col = 2, decimals = 2) |> 
+  gt_theme_pff()
 ```
 
-```{r echo=FALSE}
+```{r }
 vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |>
@@ -496,7 +571,7 @@ vinos_ratio |>
 
 Por último, para relacionar con la hipótesis 1, comparamos puntaje promedio conforme paises:
 
-```{r echo=FALSE}
+```{r }
 vinos |> 
   filter(!is.na(pais)) |> 
   group_by(pais) |> 
@@ -518,7 +593,7 @@ Se ve, que al contrario del precio promedio, el puntaje promedio no parecería t
 ### *Precio/Puntaje x Variedad*
 >Existirían variedades que podrían tener un precio promedio significativamente mayor, pero no así su puntaje.
 
-```{r echo=FALSE}
+```{r }
 vinos |> 
   filter(!is.na(variedad)) |> 
   group_by(variedad) |> 
@@ -527,13 +602,21 @@ vinos |>
             resenias = n()) |> 
   arrange(resenias) |> 
   head(10) |> 
-  kable(col.names = c("Variedad", "Puntaje Promedio", "Precio Promedio", "Reseñas")) |>
-  kable_styling(full_width = FALSE)
+  gt() |> 
+  tab_header(title = "Variedades de Vino", subtitle = "Variedades con escasas Reseñas") |> 
+  cols_label(variedad = "Variedad",
+             puntos_promedio = "Puntaje Promedio",
+             precio_promedio = "Precio Promedio",
+             resenias = "Reseñas") |>
+  gt_theme_pff()  
+  
+  # kable(col.names = c("Variedad", "Puntaje Promedio", "Precio Promedio", "Reseñas")) |>
+  # kable_styling(full_width = FALSE)
 ```
 
 Por la cantidad de variedades encontradas (``r variedades_len``), y la escasa cantidad de reseñas de muchas, se agrupan en "Otras" las variedades sin una cantidad significativa de reseñas.
 
-```{r echo=FALSE}
+```{r }
 vinos |> 
   filter(!is.na(variedad)) |> 
   group_by(variedad = fct_lump_min(variedad, tamanio_muestra/200, other_level = "Otras")) |>
@@ -554,7 +637,7 @@ Para este gráfico, se opusieron puntaje a la izquierda (escala de 80 a 100) y p
 
 ---
 
-```{r links-utiles}
+```{r links-utiles, echo=FALSE}
 ## https://inbo.github.io/git-course/course_rstudio.html
 ## git push -u origin pretty
 ## https://bookdown.org/yihui/rmarkdown/html-document.html#floating_toc
