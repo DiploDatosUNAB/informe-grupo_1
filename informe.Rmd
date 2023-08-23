@@ -459,13 +459,14 @@ p <- vinos |>
   filter(!is.na(precio)) |> 
   filter(precio < 1000) |>
   ggplot(aes(x=puntos, y=precio, color=precio)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = " USD", prefix = "")) +
   geom_jitter(show.legend = FALSE) +
   # scale_color_gradientn(colors = brewer.pal(5, "YlOrBr")) +
   scale_color_viridis_c(option = "F", direction = 1) +
   # scale_color_gradient(low="blue", high="red") + 
   labs(title = "Relación precio-puntaje",
        subtitle = "escala lineal",
-       x = "Puntos", y = "Precio (US$)", colour = "Precio")
+       x = "Puntos", y = "Precio", colour = "Precio")
 show(p)
 ```
 
@@ -476,13 +477,14 @@ q <- vinos |>
   filter(!is.na(puntos)) |> 
   filter(!is.na(precio)) |> 
   ggplot(aes(x = puntos, y = precio)) +
-  scale_y_log10() +
+  scale_y_log10(labels = scales::dollar_format(suffix = " USD", prefix = "")) +
   geom_jitter(aes(colour = precio), show.legend = FALSE) +  # Mover la estética aquí
   scale_color_viridis_c(option = "F", direction = 1, trans = "log") +
   labs(title = "Relación precio-puntaje",
        subtitle = "escala logarítmica",
-       x = "Puntos", y = "Precio (US$)") +
+       x = "Puntos", y = "Precio") +
   geom_labelsmooth(method = "lm",
+                   formula = y ~ x,
                    label = "A mayor puntaje, mayor precio", alpha = 0.5,
                    arrow = arrow())
     # stat_smooth(method = "lm",
@@ -503,10 +505,11 @@ p <- vinos |>
   group_by(puntos) |> 
   summarise(precio_promedio = mean(precio, na.rm = TRUE)) |>
   ggplot(aes(x=puntos, y=precio_promedio, fill=precio_promedio)) + 
+  scale_y_continuous(labels = scales::dollar_format(suffix = " USD", prefix = "")) +
   geom_col() +
-  scale_color_binned(trans = "log") + 
+  scale_fill_distiller(palette = "YlGnBu") +
   labs(title = "Precio Promedio vs Puntaje",
-       x = "Puntos", y = "Precio (US$)", fill = "Precio (US$)")
+       x = "Puntos", y = "Precio", fill = "Precio (US$)")
 show(p)
 ```
 
@@ -524,7 +527,7 @@ vinos |>
   tab_header(title = "Relaciones", subtitle = "Puntos vs Precio Promedio vs Reseñas") |> 
   cols_label(puntos = "Puntos", precio_promedio = "Precio Promedio", resenias = "Reseñas") |>
   fmt_number(col = 2, decimals = 2) |> 
-  gt_theme_pff()
+  gt_theme_dark()
 ```
 
 ```{r }
@@ -602,13 +605,13 @@ vinos |>
             resenias = n()) |> 
   arrange(resenias) |> 
   head(10) |> 
-  gt() |> 
-  tab_header(title = "Variedades de Vino", subtitle = "Variedades con escasas Reseñas") |> 
-  cols_label(variedad = "Variedad",
-             puntos_promedio = "Puntaje Promedio",
+  gt(rowname_col = "variedad") |> 
+  tab_header(title = "Variedades de Vino", subtitle = "Muestra de variedades con escasas Reseñas") |>
+  tab_stubhead(label = "Variedad") |> 
+  cols_label(puntos_promedio = "Puntaje Promedio",
              precio_promedio = "Precio Promedio",
              resenias = "Reseñas") |>
-  gt_theme_pff()  
+  gt_theme_dark()  
   
   # kable(col.names = c("Variedad", "Puntaje Promedio", "Precio Promedio", "Reseñas")) |>
   # kable_styling(full_width = FALSE)
