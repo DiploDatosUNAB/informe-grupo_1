@@ -16,16 +16,22 @@ output:
     ##   before_body: before_body.html
 ---
 <head>
-  <!-- Other head content -->
+  <link href="https://fonts.googleapis.com/css?family=Libre+Franklin:400,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Google+Font+Name&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> 
   <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet" >
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Helvetica+Neue:400,700&display=swap" rel="stylesheet">
 </head>
 
 <style>
 .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
     background-color: #016763;
+body {
+  font-family: 'Libre Franklin', system-ui, 'Segoe UI', Roboto, Helvetica, 'Arial', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', 'Source Sans Pro', 'Lato', 'Helvetica Neue', sans-serif;
 }
 </style>
 
@@ -739,5 +745,6 @@ Para este gráfico, se opusieron puntaje a la izquierda (escala de 80 a 100) y p
 # https://inbo.github.io/git-course/course_rstudio.html
 # https://isabella-b.com/files/ggplot2-theme-elements-reference-v2.pdf
 # https://monashdatafluency.github.io/r-rep-res/yaml-header.html
+# https://rdrr.io/github/jthomasmock/gtExtras/src/R/gt_theme_dark.R
 # https://www.garrickadenbuie.com/blog/pandoc-syntax-highlighting-examples/
 ```
